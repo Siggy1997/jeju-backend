@@ -17,16 +17,17 @@
 
     <select id="getFoodBookmarkList" resultType="kr.co.siggy.server.common.CamelCaseMap">
 		SELECT 
-		    FL.SEQ,
-		    FL.NAME,
-		    FL.DESCRIPT
+		    FL.SEQ
+		    , FL.NAME
+		    , FL.DESCRIPT
+		    , FL.CATEGORY
 		FROM 
 		    FOOD_LOCATION FL
 		JOIN 
 		    USER_FAVORITE UF
 		    ON UF.MAP_SEQ = FL.SEQ
 		WHERE
-		    UF.CATEGORY = 'food'
+		    UF.CATEGORY IN('food', 'DESSERT')
 		    AND UF.USER_ID = #{id}
         </select>
 

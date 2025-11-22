@@ -15,7 +15,7 @@ public class WebConfig {
 			public void addCorsMappings(CorsRegistry registry) {
 				registry.addMapping("/**") // 모든 경로 허용
 						.allowedOrigins("http://192.168.0.32:5173", "http://192.168.0.159:5173","https://siggy.co.kr", // 수정된 IP
-								"http://192.168.45.223:5173" // 도메인 추가 가능
+								"http://172.30.106.166:5173" // 도메인 추가 가능
 				).allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS").allowedHeaders("*").allowCredentials(true);
 			}
 		};
