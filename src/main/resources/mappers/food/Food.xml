@@ -28,7 +28,7 @@
 		WHERE 
 			USER_ID = #{id}
 		AND 
-			CATEGORY = 'food'
+			CATEGORY = #{category}
     </select>
 
     
