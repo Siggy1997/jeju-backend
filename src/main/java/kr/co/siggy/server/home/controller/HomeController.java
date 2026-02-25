@@ -16,7 +16,7 @@ public class HomeController extends BaseController{
 	public String index() {
 		logger.info("###INDEX");
 		
-		return "HELLO";
+		return "test";
 	}
 	@PostMapping("/login/list")
 	public Map<String, Object> boardList() {
