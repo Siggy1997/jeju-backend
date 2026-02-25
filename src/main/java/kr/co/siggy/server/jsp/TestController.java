@@ -23,9 +23,8 @@ public class TestController extends BaseController{
 	@GetMapping(value = "/testForm", name = "홈")
 	public String dd() {
 		System.out.println("!!!");
-		logger.info("###INDEX");
 		
-		return "index";
+		return "";
 	}
 	
     @PostMapping("/testForm/submitDays")
