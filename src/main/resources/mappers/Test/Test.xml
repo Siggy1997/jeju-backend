@@ -18,7 +18,7 @@
 	                <foreach item="day" collection="days" open="(" separator="," close=")">
 	                    #{day}
 	                </foreach>
-	                AND TYPE != '파생어'
+	                AND TYPE IN ('유의어','표제어')
 	            </when>
 	            <otherwise>
 	                1 = 2
