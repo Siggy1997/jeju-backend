@@ -42,7 +42,7 @@
         .tables {
             position: absolute;
             left: 50%;
-            top: 66.5mm;
+            top: 66.2mm;
             width: 172.04mm;
             transform: translateX(-50%);
             display: flex;
@@ -137,10 +137,8 @@
             background-color: #fff;
             margin: 1% auto;
             padding: 20px;
-            width: 746px;
             border-radius: 5px;
             text-align: center;
-            height: 583px;
         }
 
         .modal-content button {
@@ -184,7 +182,7 @@
         #input-grade {
             position: absolute;
             left: 48.7%;
-            top: 31.9mm;
+            top: 31.8mm;
             width: 25.04mm;
             font-size: 9.5pt;
             font-family: "HCR Batang", "한컴바탕", serif;
@@ -203,9 +201,10 @@
 <body>
     <!-- 모달 -->
     <div id="dayModal" class="modal">
-        <div class="modal-content">
+        <div style="width: 780px;" class="modal-content">
             <div style="color: #933030;font-size: 33px;font-weight: 800;margin-bottom: 15px;">DAY 선택</div>
-            <div style="display:flex; flex-wrap: wrap; justify-content:center; user-select:none;" id="day-items-container">
+            <div style="display:flex; flex-wrap: wrap; justify-content:center; user-select:none;"
+                id="day-items-container">
                 <!-- JS로 생성됨 -->
             </div>
             <br>
@@ -213,7 +212,26 @@
             <button class="modal-btn" onclick="hideModal()" style="background-color: white; color: black;">취소</button>
         </div>
     </div>
-
+    <!-- 모달 2-->
+    <div id="detailModal" class="modal">
+        <div class="modal-content" style="width: 80%;scroll-behavior: hidden; height: 80%;overflow: auto; -ms-overflow-style: none; scrollbar-width: none; border-radius: 21px;">
+            <h2>단어 전체 목록</h2>
+            <table border="1" style="width:100%; border-collapse:collapse; font-size:14px;">
+                <thead>
+                    <tr>
+                        <th style="width:6%;">번호</th>
+                        <th style="width:10%;">DAY</th>
+                        <th style="width:37%;">단어</th>
+                        <th style="width:37%;">뜻</th>
+                        <th style="width:10%;">유형</th>
+                    </tr>
+                </thead>
+                <tbody id="detailTableBody"></tbody>
+            </table>
+            <br>
+            <button class="modal-btn" onclick="hideDetailModal()">닫기</button>
+        </div>
+    </div>
     <div class="no-print"
         style="margin: auto; width: 210mm;padding: 20px 0; display: flex; justify-content: space-between;">
         <div>
@@ -221,10 +239,14 @@
             <button class="btn" id="refreshBtn" type="button">새로고침</button>
         </div>
         <div>
+            <button class="btn" type="button" onclick="showDetailModal()">자세히보기</button>
+        </div>
+        <div>
             <button class="btn" onclick="forStudent()">학생용</button>
             <button class="btn" onclick="forTeacher()">선생용</button>
             <button class="btn" onclick="doPrint()">프린트</button>
         </div>
+    </div>
     </div>
 
     <div class="paper">
@@ -252,7 +274,19 @@
     </div>
 
     <script>
-        // DAY 선택 아이템 생성 (JSP <c:forEach> 대체)
+        /* =========================
+           전역 상태
+        ========================= */
+        let selected = [];
+        let currentVocabList = []; // ← 마지막 조회 데이터 저장
+
+        const selectedDaysDiv = document.getElementById('selected-days');
+        const submitBtn = document.getElementById('submitDays');
+        const modal = document.getElementById('dayModal');
+
+        /* =========================
+           DAY 버튼 생성
+        ========================= */
         const container = document.getElementById('day-items-container');
         for (let d = 1; d <= 50; d++) {
             const div = document.createElement('div');
@@ -260,29 +294,14 @@
             div.dataset.value = d;
             div.style.cssText = "width:50px; margin:5px; text-align:center; padding:5px; border:1px solid #ccc; cursor:pointer;";
             div.innerHTML = `<div style="font-size: 17px; font-weight: 900;">${d}</div>
-                             <span style="font-size: 13px; font-weight: 700;">DAY</span>`;
+                     <span style="font-size: 13px; font-weight: 700;">DAY</span>`;
             container.appendChild(div);
         }
 
-        // PDF 렌더링
-        const url = "/testForm.pdf";
-        pdfjsLib.getDocument(url).promise.then(pdf => {
-            pdf.getPage(1).then(page => {
-                const viewport = page.getViewport({ scale: 2 });
-                const canvas = document.getElementById("pdfCanvas");
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-                page.render({ canvasContext: canvas.getContext("2d"), viewport });
-            });
-        });
-
-        let selected = [];
-        const selectedDaysDiv = document.getElementById('selected-days');
-        const dayItems = document.querySelectorAll('.day-item');
-        const submitBtn = document.getElementById('submitDays');
-        const modal = document.getElementById('dayModal');
-
-        dayItems.forEach(div => {
+        /* =========================
+           DAY 선택
+        ========================= */
+        document.querySelectorAll('.day-item').forEach(div => {
             div.addEventListener('click', () => {
                 const val = Number(div.dataset.value);
 
@@ -296,9 +315,7 @@
 
                 if (selected.length > 0) {
                     const sorted = selected.slice().sort((a, b) => a - b);
-                    const min = sorted[0];
-                    const max = sorted[sorted.length - 1];
-                    selectedDaysDiv.textContent = "Day   " + min + " ~ " + max;
+                    selectedDaysDiv.textContent = `Day   ${sorted[0]} ~ ${sorted[sorted.length - 1]}`;
                 } else {
                     selectedDaysDiv.textContent = 'Day';
                 }
@@ -308,45 +325,60 @@
         function showModal() { modal.style.display = 'block'; }
         function hideModal() { modal.style.display = 'none'; }
 
-       function renderVocabTables(vocabList) {
-    const leftBody = document.getElementById('leftTableBody');
-    const rightBody = document.getElementById('rightTableBody');
-    leftBody.innerHTML = '';
-    rightBody.innerHTML = '';
-
-    vocabList.forEach((w, index) => {
-        const tr = document.createElement('tr');
-
-        const td1 = document.createElement('td'); 
-        td1.textContent = '';
-
-        const td2 = document.createElement('td'); 
-        td2.className = 'vocab'; 
-        td2.textContent = w.vocab;
-        td2.contentEditable = true; // ← 편집 가능
-        td2.addEventListener('blur', () => {
-            w.vocab = td2.textContent; // 변경된 값 저장
+        /* =========================
+           PDF 렌더링
+        ========================= */
+        const url = "/testForm.pdf";
+        pdfjsLib.getDocument(url).promise.then(pdf => {
+            pdf.getPage(1).then(page => {
+                const viewport = page.getViewport({ scale: 2 });
+                const canvas = document.getElementById("pdfCanvas");
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                page.render({ canvasContext: canvas.getContext("2d"), viewport });
+            });
         });
 
-        const td3 = document.createElement('td'); 
-        td3.className = 'answer'; 
-        td3.textContent = w.meaning;
-        td3.contentEditable = true; // ← 편집 가능
-        td3.addEventListener('blur', () => {
-            w.meaning = td3.textContent; // 변경된 값 저장
-        });
+        /* =========================
+           시험지 표 렌더링
+        ========================= */
+        function renderVocabTables(vocabList) {
+            const leftBody = document.getElementById('leftTableBody');
+            const rightBody = document.getElementById('rightTableBody');
+            leftBody.innerHTML = '';
+            rightBody.innerHTML = '';
 
-        tr.appendChild(td1);
-        tr.appendChild(td2);
-        tr.appendChild(td3);
+            vocabList.forEach((w, index) => {
+                const tr = document.createElement('tr');
 
-        if (index < 20) leftBody.appendChild(tr);
-        else rightBody.appendChild(tr);
-    });
-}
+                const td1 = document.createElement('td');
+                td1.textContent = '';
 
-        submitBtn.addEventListener('click', () => {
+                const td2 = document.createElement('td');
+                td2.className = 'vocab';
+                td2.textContent = w.vocab;
+                td2.contentEditable = true;
+                td2.onblur = () => w.vocab = td2.textContent;
+
+                const td3 = document.createElement('td');
+                td3.className = 'answer';
+                td3.textContent = w.meaning;
+                td3.contentEditable = true;
+                td3.onblur = () => w.meaning = td3.textContent;
+
+                tr.append(td1, td2, td3);
+
+                if (index < 20) leftBody.appendChild(tr);
+                else rightBody.appendChild(tr);
+            });
+        }
+
+        /* =========================
+           서버 조회
+        ========================= */
+        function requestDays() {
             if (selected.length === 0) return alert('선택된 DAY가 없습니다!');
+
             fetch('/testForm/submitDays', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -354,40 +386,99 @@
             })
                 .then(res => res.json())
                 .then(result => {
-                    console.log('서버 응답:', result);
                     hideModal();
-                    if (result.result) renderVocabTables(result.result);
-                })
-                .catch(err => console.error('AJAX 오류:', err));
-        });
+                    if (result.result) {
+                        currentVocabList = result.result; // ⭐ 캐시 저장
+                        renderVocabTables(currentVocabList);
+                    }
+                });
+        }
 
-        document.getElementById('refreshBtn').addEventListener('click', () => {
-            if (selected.length === 0) return alert('선택된 DAY가 없습니다!');
-            fetch('/testForm/submitDays', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ days: selected })
-            })
-                .then(res => res.json())
-                .then(result => {
-                    console.log('서버 응답:', result);
-                    hideModal();
-                    if (result.result) renderVocabTables(result.result);
-                })
-                .catch(err => console.error('AJAX 오류:', err));
-        });
+        submitBtn.addEventListener('click', requestDays);
+        document.getElementById('refreshBtn').addEventListener('click', requestDays);
 
+        /* =========================
+           자세히보기 모달
+        ========================= */
+        const detailModal = document.getElementById('detailModal');
+
+        function showDetailModal() {
+            if (currentVocabList.length === 0)
+                return alert('먼저 DAY 조회를 해주세요');
+
+            renderDetailTable(currentVocabList);
+            detailModal.style.display = 'block';
+        }
+
+        function hideDetailModal() {
+            detailModal.style.display = 'none';
+        }
+
+        function renderDetailTable(list) {
+		    const tbody = document.getElementById('detailTableBody');
+		    tbody.innerHTML = '';
+		
+		    list.forEach((w, index) => {   // ← 괄호 필수
+		        const tr = document.createElement('tr');
+		
+		        const day = w.day ?? '';
+		        const vocab = w.vocab ?? '';
+		        const meaning = w.meaning ?? '';
+		        const type = w.type ?? '';
+		
+		        tr.innerHTML = `
+		            <td>${index + 1}</td>
+		            <td contenteditable="true">${day}</td>
+		            <td contenteditable="true">${vocab}</td>
+		            <td contenteditable="true">${meaning}</td>
+		            <td contenteditable="true">${type}</td>
+		        `;
+		
+		        tbody.appendChild(tr);
+		    });
+		}
+
+        /* =========================
+           모드
+        ========================= */
         function forStudent() {
             document.querySelectorAll('.answer').forEach(el => el.style.visibility = 'hidden');
         }
-
         function forTeacher() {
             document.querySelectorAll('.answer').forEach(el => el.style.visibility = 'visible');
         }
-
         function doPrint() {
             window.print();
         }
+        
+        // ===== contenteditable 붙여넣기 스타일 제거 =====
+document.addEventListener('paste', function (e) {
+
+    const target = e.target;
+
+    // contenteditable에서만 동작
+    if (!target.isContentEditable) return;
+
+    e.preventDefault();
+
+    // 순수 텍스트만 가져오기
+    let text = (e.clipboardData || window.clipboardData).getData('text/plain');
+
+    // 줄바꿈 정리 (워드/엑셀 개행 깨짐 방지)
+    text = text.replace(/\r\n/g, '\n');
+
+    insertTextAtCursor(text);
+});
+
+function insertTextAtCursor(text) {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+
+    selection.deleteFromDocument();
+    selection.getRangeAt(0).insertNode(document.createTextNode(text));
+    selection.collapseToEnd();
+}
     </script>
 </body>
+
 </html>
