@@ -42,7 +42,7 @@
         .tables {
             position: absolute;
             left: 50%;
-            top: 66.2mm;
+            top: 66.5mm;
             width: 172.04mm;
             transform: translateX(-50%);
             display: flex;
@@ -52,7 +52,7 @@
             width: 50%;
             border-collapse: collapse;
             table-layout: fixed;
-            font-size: 10pt;
+            font-size: 9pt;
             font-family: "HCR Batang", "한컴바탕", serif;
             font-weight: bold;
         }
@@ -184,7 +184,7 @@
         #input-grade {
             position: absolute;
             left: 48.7%;
-            top: 31.8mm;
+            top: 31.9mm;
             width: 25.04mm;
             font-size: 9.5pt;
             font-family: "HCR Batang", "한컴바탕", serif;
@@ -308,27 +308,42 @@
         function showModal() { modal.style.display = 'block'; }
         function hideModal() { modal.style.display = 'none'; }
 
-        function renderVocabTables(vocabList) {
-            const leftBody = document.getElementById('leftTableBody');
-            const rightBody = document.getElementById('rightTableBody');
-            leftBody.innerHTML = '';
-            rightBody.innerHTML = '';
+       function renderVocabTables(vocabList) {
+    const leftBody = document.getElementById('leftTableBody');
+    const rightBody = document.getElementById('rightTableBody');
+    leftBody.innerHTML = '';
+    rightBody.innerHTML = '';
 
-            vocabList.forEach((w, index) => {
-                const tr = document.createElement('tr');
+    vocabList.forEach((w, index) => {
+        const tr = document.createElement('tr');
 
-                const td1 = document.createElement('td'); td1.textContent = '';
-                const td2 = document.createElement('td'); td2.className = 'vocab'; td2.textContent = w.vocab;
-                const td3 = document.createElement('td'); td3.className = 'answer'; td3.textContent = w.meaning;
+        const td1 = document.createElement('td'); 
+        td1.textContent = '';
 
-                tr.appendChild(td1);
-                tr.appendChild(td2);
-                tr.appendChild(td3);
+        const td2 = document.createElement('td'); 
+        td2.className = 'vocab'; 
+        td2.textContent = w.vocab;
+        td2.contentEditable = true; // ← 편집 가능
+        td2.addEventListener('blur', () => {
+            w.vocab = td2.textContent; // 변경된 값 저장
+        });
 
-                if (index < 20) leftBody.appendChild(tr);
-                else rightBody.appendChild(tr);
-            });
-        }
+        const td3 = document.createElement('td'); 
+        td3.className = 'answer'; 
+        td3.textContent = w.meaning;
+        td3.contentEditable = true; // ← 편집 가능
+        td3.addEventListener('blur', () => {
+            w.meaning = td3.textContent; // 변경된 값 저장
+        });
+
+        tr.appendChild(td1);
+        tr.appendChild(td2);
+        tr.appendChild(td3);
+
+        if (index < 20) leftBody.appendChild(tr);
+        else rightBody.appendChild(tr);
+    });
+}
 
         submitBtn.addEventListener('click', () => {
             if (selected.length === 0) return alert('선택된 DAY가 없습니다!');
