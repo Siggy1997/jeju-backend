@@ -2,483 +2,504 @@
 <html lang="ko">
 
 <head>
-    <meta charset="UTF-8">
-    <title>단어시험</title>
+	<meta charset="UTF-8">
+	<title>단어시험</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc =
-            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-    </script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+	<script>
+		pdfjsLib.GlobalWorkerOptions.workerSrc =
+			"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+	</script>
 
-    <style>
-        @page {
-            size: A4;
-            margin: 0mm;
-        }
+	<style>
+		@page {
+			size: A4;
+			margin: 0mm;
+		}
 
-        body {
-            margin: 0;
-            background: #e5e5e5;
-        }
+		body {
+			margin: 0;
+			background: #e5e5e5;
+		}
 
-        .paper {
-            position: relative;
-            width: 210mm;
-            height: 297mm;
-            background: white;
-            margin: auto;
-            box-shadow: 0 0 10px rgba(0, 0, 0, .25);
-        }
+		.paper {
+			position: relative;
+			width: 210mm;
+			height: 297mm;
+			background: white;
+			margin: auto;
+			box-shadow: 0 0 10px rgba(0, 0, 0, .25);
+		}
 
-        #pdfCanvas {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 210mm;
-            height: 297mm;
-        }
+		#pdfCanvas {
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 210mm;
+			height: 297mm;
+		}
 
-        .tables {
-            position: absolute;
-            left: 50%;
-            top: 66.2mm;
-            width: 172.04mm;
-            transform: translateX(-50%);
-            display: flex;
-        }
+		.tables {
+			position: absolute;
+			left: 50%;
+			top: 66.2mm;
+			width: 172.04mm;
+			transform: translateX(-50%);
+			display: flex;
+		}
 
-        .form-table {
-            width: 50%;
-            border-collapse: collapse;
-            table-layout: fixed;
-            font-size: 9pt;
-            font-family: "HCR Batang", "한컴바탕", serif;
-            font-weight: bold;
-        }
+		.form-table {
+			width: 50%;
+			border-collapse: collapse;
+			table-layout: fixed;
+			font-size: 9pt;
+			font-family: "HCR Batang", "한컴바탕", serif;
+			font-weight: bold;
+		}
 
-        .form-table td {
-            height: 9.8mm;
-            padding: 0 1px;
-            text-align: center;
-            vertical-align: middle;
-        }
+		.form-table td {
+			height: 9.8mm;
+			padding: 0 1px;
+			text-align: center;
+			vertical-align: middle;
+		}
 
-        .form-table.left td:last-child {
-            border-right: 0;
-        }
+		.form-table.left td:last-child {
+			border-right: 0;
+		}
 
-        .form-table col.c1 {
-            width: 8.78mm;
-        }
+		.form-table col.c1 {
+			width: 8.78mm;
+		}
 
-        .form-table col.c2 {
-            width: 33.63mm;
-        }
+		.form-table col.c2 {
+			width: 33.63mm;
+		}
 
-        .form-table col.c3 {
-            width: 43.61mm;
-        }
+		.form-table col.c3 {
+			width: 43.61mm;
+		}
 
-        .answer {
-            font-size: 8pt;
-        }
+		.answer {
+			font-size: 8pt;
+		}
 
-        @media print {
-            @page {
-                size: A4;
-                margin: 0mm;
-            }
+		@media print {
+			@page {
+				size: A4;
+				margin: 0mm;
+			}
 
-            html,
-            body {
-                width: 210mm;
-                height: 297mm;
-                overflow: hidden;
-                background: white;
-            }
+			html,
+			body {
+				width: 210mm;
+				height: 297mm;
+				overflow: hidden;
+				background: white;
+			}
 
-            .no-print,
-            nav,
-            footer,
-            button {
-                display: none !important;
-            }
+			.no-print,
+			nav,
+			footer,
+			button {
+				display: none !important;
+			}
 
-            .paper {
-                box-shadow: none;
-                margin: 0;
-                page-break-after: avoid;
-                page-break-inside: avoid;
-                overflow: hidden;
-                position: fixed;
-                top: 0;
-                left: 0;
-            }
+			.paper {
+				box-shadow: none;
+				margin: 0;
+				page-break-after: avoid;
+				page-break-inside: avoid;
+				overflow: hidden;
+				position: fixed;
+				top: 0;
+				left: 0;
+			}
 
-            .print-area {
-                display: block;
-                width: 100%;
-            }
-        }
+			.print-area {
+				display: block;
+				width: 100%;
+			}
+		}
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.5);
+		}
 
-        .modal-content {
-            background-color: #fff;
-            margin: 1% auto;
-            padding: 20px;
-            border-radius: 5px;
-            text-align: center;
-        }
+		.modal-content {
+			background-color: #fff;
+			margin: 1% auto;
+			padding: 20px;
+			border-radius: 5px;
+			text-align: center;
+		}
 
-        .modal-content button {
-            margin: 5px;
-        }
+		.modal-content button {
+			margin: 5px;
+		}
 
-        .modal-btn {
-            background-color: #933030;
-            border: none;
-            padding: 5px 10px;
-            width: 94%;
-            color: white;
-            border-radius: 9px;
-            font-size: 18px;
-        }
+		.modal-btn {
+			background-color: #933030;
+			border: none;
+			padding: 5px 10px;
+			width: 94%;
+			color: white;
+			border-radius: 9px;
+			font-size: 18px;
+		}
 
-        .btn {
-            background-color: #933030;
-            border: none;
-            padding: 5px 10px;
-            color: white;
-            border-radius: 9px;
-            font-size: 14px;
-        }
+		.btn {
+			background-color: #933030;
+			border: none;
+			padding: 5px 10px;
+			color: white;
+			border-radius: 9px;
+			font-size: 14px;
+		}
 
-        .day-item.selected {
-            background-color: #933030;
-            color: white;
-        }
+		.day-item.selected {
+			background-color: #933030;
+			color: white;
+		}
 
-        #selected-days {
-            position: absolute;
-            left: 49%;
-            top: 24.5mm;
-            width: 25.04mm;
-            font-size: 9.5pt;
-            font-family: "HCR Batang", "한컴바탕", serif;
-            font-weight: lighter;
-        }
+		#selected-days {
+			position: absolute;
+			left: 49%;
+			top: 24.5mm;
+			width: 25.04mm;
+			font-size: 9.5pt;
+			font-family: "HCR Batang", "한컴바탕", serif;
+			font-weight: lighter;
+		}
 
-        #input-grade {
-            position: absolute;
-            left: 48.7%;
-            top: 31.8mm;
-            width: 25.04mm;
-            font-size: 9.5pt;
-            font-family: "HCR Batang", "한컴바탕", serif;
-            font-weight: lighter;
-            border: none;
-            padding: 0;
-        }
+		#input-grade {
+			position: absolute;
+			left: 48.7%;
+			top: 31.8mm;
+			width: 25.04mm;
+			font-size: 9.5pt;
+			font-family: "HCR Batang", "한컴바탕", serif;
+			font-weight: lighter;
+			border: none;
+			padding: 0;
+		}
 
-        #input-grade::placeholder {
-            color: #f81919;
-            font-weight: 800;
-        }
-    </style>
+		#input-grade::placeholder {
+			color: #f81919;
+			font-weight: 800;
+		}
+	</style>
 </head>
 
 <body>
-    <!-- 모달 -->
-    <div id="dayModal" class="modal">
-        <div style="width: 780px;" class="modal-content">
-            <div style="color: #933030;font-size: 33px;font-weight: 800;margin-bottom: 15px;">DAY 선택</div>
-            <div style="display:flex; flex-wrap: wrap; justify-content:center; user-select:none;"
-                id="day-items-container">
-                <!-- JS로 생성됨 -->
-            </div>
-            <br>
-            <button class="modal-btn" id="submitDays" style="padding: 10px 10px">확인</button>
-            <button class="modal-btn" onclick="hideModal()" style="background-color: white; color: black;">취소</button>
-        </div>
-    </div>
-    <!-- 모달 2-->
-    <div id="detailModal" class="modal">
-        <div class="modal-content" style="width: 80%;scroll-behavior: hidden; height: 80%;overflow: auto; -ms-overflow-style: none; scrollbar-width: none; border-radius: 21px;">
-            <h2>단어 전체 목록</h2>
-            <table border="1" style="width:100%; border-collapse:collapse; font-size:14px;">
-                <thead>
-                    <tr>
-                        <th style="width:6%;">번호</th>
-                        <th style="width:10%;">DAY</th>
-                        <th style="width:37%;">단어</th>
-                        <th style="width:37%;">뜻</th>
-                        <th style="width:10%;">유형</th>
-                    </tr>
-                </thead>
-                <tbody id="detailTableBody"></tbody>
-            </table>
-            <br>
-            <button class="modal-btn" onclick="hideDetailModal()">닫기</button>
-        </div>
-    </div>
-    <div class="no-print"
-        style="margin: auto; width: 210mm;padding: 20px 0; display: flex; justify-content: space-between;">
-        <div>
-            <button class="btn" type="button" onclick="showModal()">날짜 선택</button>
-            <button class="btn" id="refreshBtn" type="button">새로고침</button>
-        </div>
-        <div>
-            <button class="btn" type="button" onclick="showDetailModal()">자세히보기</button>
-        </div>
-        <div>
-            <button class="btn" onclick="forStudent()">학생용</button>
-            <button class="btn" onclick="forTeacher()">선생용</button>
-            <button class="btn" onclick="doPrint()">프린트</button>
-        </div>
-    </div>
-    </div>
+	<!-- 모달 -->
+	<div id="dayModal" class="modal">
+		<div style="width: 780px;" class="modal-content">
+			<div style="color: #933030;font-size: 33px;font-weight: 800;margin-bottom: 15px;">DAY 선택</div>
+			<div style="display:flex; flex-wrap: wrap; justify-content:center; user-select:none;"
+				id="day-items-container">
+				<!-- JS로 생성됨 -->
+			</div>
+			<br>
+			<button class="modal-btn" id="submitDays" style="padding: 10px 10px">확인</button>
+			<button class="modal-btn" onclick="hideModal()" style="background-color: white; color: black;">취소</button>
+		</div>
+	</div>
+	<!-- 모달 2-->
+	<div id="detailModal" class="modal">
+		<div class="modal-content"
+			style="width: 80%;scroll-behavior: hidden; height: 80%;overflow: auto; -ms-overflow-style: none; scrollbar-width: none; border-radius: 21px;">
+			<h2>단어 전체 목록</h2>
+			<table border="1" style="width:100%; border-collapse:collapse; font-size:14px;">
+				<thead>
+					<tr>
+						<th style="width:6%;">번호</th>
+						<th style="width:10%;">DAY</th>
+						<th style="width:37%;">단어</th>
+						<th style="width:37%;">뜻</th>
+						<th style="width:10%;">유형</th>
+					</tr>
+				</thead>
+				<tbody id="detailTableBody"></tbody>
+			</table>
+			<br>
+			<button class="modal-btn" onclick="hideDetailModal()">닫기</button>
+		</div>
+	</div>
+	<div class="no-print"
+		style="margin: auto; width: 210mm;padding: 20px 0; display: flex; justify-content: space-between;">
+		<div>
+			<button class="btn" type="button" onclick="showModal()">날짜 선택</button>
+			<button class="btn" id="refreshBtn" type="button">새로고침</button>
+		</div>
+		<div>
+			<button class="btn" type="button" onclick="showDetailModal()">자세히보기</button>
+		</div>
+		<div>
+			<button class="btn" onclick="forStudent()">학생용</button>
+			<button class="btn" onclick="forTeacher()">선생용</button>
+			<button class="btn" onclick="doPrint()">프린트</button>
+		</div>
+	</div>
+	</div>
 
-    <div class="paper">
-        <canvas id="pdfCanvas"></canvas>
-        <div id="selected-days">Day</div>
-        <input id="input-grade" type="text" placeholder="입력하세요">
-        <div class="tables">
-            <table class="form-table left">
-                <colgroup>
-                    <col class="c1">
-                    <col class="c2">
-                    <col class="c3">
-                </colgroup>
-                <tbody id="leftTableBody"></tbody>
-            </table>
-            <table class="form-table">
-                <colgroup>
-                    <col class="c1">
-                    <col class="c2">
-                    <col class="c3">
-                </colgroup>
-                <tbody id="rightTableBody"></tbody>
-            </table>
-        </div>
-    </div>
+	<div class="paper">
+		<canvas id="pdfCanvas"></canvas>
+		<div id="selected-days">Day</div>
+		<input id="input-grade" type="text" placeholder="입력하세요">
+		<div class="tables">
+			<table class="form-table left">
+				<colgroup>
+					<col class="c1">
+					<col class="c2">
+					<col class="c3">
+				</colgroup>
+				<tbody id="leftTableBody"></tbody>
+			</table>
+			<table class="form-table">
+				<colgroup>
+					<col class="c1">
+					<col class="c2">
+					<col class="c3">
+				</colgroup>
+				<tbody id="rightTableBody"></tbody>
+			</table>
+		</div>
+	</div>
 
-    <script>
-        /* =========================
-           전역 상태
-        ========================= */
-        let selected = [];
-        let currentVocabList = []; // ← 마지막 조회 데이터 저장
+	<script>
+		/* =========================
+		   전역 상태
+		========================= */
+		let selected = [];
+		let currentVocabList = []; // ← 마지막 조회 데이터 저장
 
-        const selectedDaysDiv = document.getElementById('selected-days');
-        const submitBtn = document.getElementById('submitDays');
-        const modal = document.getElementById('dayModal');
+		const selectedDaysDiv = document.getElementById('selected-days');
+		const submitBtn = document.getElementById('submitDays');
+		const modal = document.getElementById('dayModal');
 
-        /* =========================
-           DAY 버튼 생성
-        ========================= */
-        const container = document.getElementById('day-items-container');
-        for (let d = 1; d <= 50; d++) {
-            const div = document.createElement('div');
-            div.className = 'day-item';
-            div.dataset.value = d;
-            div.style.cssText = "width:50px; margin:5px; text-align:center; padding:5px; border:1px solid #ccc; cursor:pointer;";
-            div.innerHTML = `<div style="font-size: 17px; font-weight: 900;">${d}</div>
+		/* =========================
+		   DAY 버튼 생성
+		========================= */
+		const container = document.getElementById('day-items-container');
+		for (let d = 1; d <= 50; d++) {
+			const div = document.createElement('div');
+			div.className = 'day-item';
+			div.dataset.value = d;
+			div.style.cssText = "width:50px; margin:5px; text-align:center; padding:5px; border:1px solid #ccc; cursor:pointer;";
+			div.innerHTML = `<div style="font-size: 17px; font-weight: 900;">${d}</div>
                      <span style="font-size: 13px; font-weight: 700;">DAY</span>`;
-            container.appendChild(div);
-        }
-
-        /* =========================
-           DAY 선택
-        ========================= */
-        document.querySelectorAll('.day-item').forEach(div => {
-            div.addEventListener('click', () => {
-                const val = Number(div.dataset.value);
-
-                if (selected.includes(val)) {
-                    selected = selected.filter(v => v !== val);
-                    div.classList.remove('selected');
-                } else {
-                    selected.push(val);
-                    div.classList.add('selected');
-                }
-
-                if (selected.length > 0) {
-                    const sorted = selected.slice().sort((a, b) => a - b);
-                    selectedDaysDiv.textContent = `Day   ${sorted[0]} ~ ${sorted[sorted.length - 1]}`;
-                } else {
-                    selectedDaysDiv.textContent = 'Day';
-                }
-            });
-        });
-
-        function showModal() { modal.style.display = 'block'; }
-        function hideModal() { modal.style.display = 'none'; }
-
-        /* =========================
-           PDF 렌더링
-        ========================= */
-        const url = "/testForm.pdf";
-        pdfjsLib.getDocument(url).promise.then(pdf => {
-            pdf.getPage(1).then(page => {
-                const viewport = page.getViewport({ scale: 2 });
-                const canvas = document.getElementById("pdfCanvas");
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-                page.render({ canvasContext: canvas.getContext("2d"), viewport });
-            });
-        });
-
-        /* =========================
-           시험지 표 렌더링
-        ========================= */
-        function renderVocabTables(vocabList) {
-            const leftBody = document.getElementById('leftTableBody');
-            const rightBody = document.getElementById('rightTableBody');
-            leftBody.innerHTML = '';
-            rightBody.innerHTML = '';
-
-            vocabList.forEach((w, index) => {
-                const tr = document.createElement('tr');
-
-                const td1 = document.createElement('td');
-                td1.textContent = '';
-
-                const td2 = document.createElement('td');
-                td2.className = 'vocab';
-                td2.textContent = w.vocab;
-                td2.contentEditable = true;
-                td2.onblur = () => w.vocab = td2.textContent;
-
-                const td3 = document.createElement('td');
-                td3.className = 'answer';
-                td3.textContent = w.meaning;
-                td3.contentEditable = true;
-                td3.onblur = () => w.meaning = td3.textContent;
-
-                tr.append(td1, td2, td3);
-
-                if (index < 20) leftBody.appendChild(tr);
-                else rightBody.appendChild(tr);
-            });
-        }
-
-        /* =========================
-           서버 조회
-        ========================= */
-        function requestDays() {
-            if (selected.length === 0) return alert('선택된 DAY가 없습니다!');
-
-            fetch('/testForm/submitDays', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ days: selected })
-            })
-                .then(res => res.json())
-                .then(result => {
-                    hideModal();
-                    if (result.result) {
-                        currentVocabList = result.result; // ⭐ 캐시 저장
-                        renderVocabTables(currentVocabList);
-                    }
-                });
-        }
-
-        submitBtn.addEventListener('click', requestDays);
-        document.getElementById('refreshBtn').addEventListener('click', requestDays);
-
-        /* =========================
-           자세히보기 모달
-        ========================= */
-        const detailModal = document.getElementById('detailModal');
-
-        function showDetailModal() {
-            if (currentVocabList.length === 0)
-                return alert('먼저 DAY 조회를 해주세요');
-
-            renderDetailTable(currentVocabList);
-            detailModal.style.display = 'block';
-        }
-
-        function hideDetailModal() {
-            detailModal.style.display = 'none';
-        }
-
-        function renderDetailTable(list) {
-		    const tbody = document.getElementById('detailTableBody');
-		    tbody.innerHTML = '';
-		
-		    list.forEach((w, index) => {   // ← 괄호 필수
-		        const tr = document.createElement('tr');
-		
-		        const day = w.day ?? '';
-		        const vocab = w.vocab ?? '';
-		        const meaning = w.meaning ?? '';
-		        const type = w.type ?? '';
-		
-		        tr.innerHTML = `
-		            <td>${index + 1}</td>
-		            <td contenteditable="true">${day}</td>
-		            <td contenteditable="true">${vocab}</td>
-		            <td contenteditable="true">${meaning}</td>
-		            <td contenteditable="true">${type}</td>
-		        `;
-		
-		        tbody.appendChild(tr);
-		    });
+			container.appendChild(div);
 		}
 
-        /* =========================
-           모드
-        ========================= */
-        function forStudent() {
-            document.querySelectorAll('.answer').forEach(el => el.style.visibility = 'hidden');
-        }
-        function forTeacher() {
-            document.querySelectorAll('.answer').forEach(el => el.style.visibility = 'visible');
-        }
-        function doPrint() {
-            window.print();
-        }
-        
-        // ===== contenteditable 붙여넣기 스타일 제거 =====
-document.addEventListener('paste', function (e) {
+		/* =========================
+		   DAY 선택
+		========================= */
+		document.querySelectorAll('.day-item').forEach(div => {
+			div.addEventListener('click', () => {
+				const val = Number(div.dataset.value);
 
-    const target = e.target;
+				if (selected.includes(val)) {
+					selected = selected.filter(v => v !== val);
+					div.classList.remove('selected');
+				} else {
+					selected.push(val);
+					div.classList.add('selected');
+				}
 
-    // contenteditable에서만 동작
-    if (!target.isContentEditable) return;
+				if (selected.length > 0) {
+					const sorted = selected.slice().sort((a, b) => a - b);
+					selectedDaysDiv.textContent = `Day   ${sorted[0]} ~ ${sorted[sorted.length - 1]}`;
+				} else {
+					selectedDaysDiv.textContent = 'Day';
+				}
+			});
+		});
 
-    e.preventDefault();
+		function showModal() {modal.style.display = 'block';}
+		function hideModal() {modal.style.display = 'none';}
 
-    // 순수 텍스트만 가져오기
-    let text = (e.clipboardData || window.clipboardData).getData('text/plain');
+		/* =========================
+		   PDF 렌더링
+		========================= */
+		const url = "/testForm.pdf";
+		pdfjsLib.getDocument(url).promise.then(pdf => {
+			pdf.getPage(1).then(page => {
+				const viewport = page.getViewport({scale: 2});
+				const canvas = document.getElementById("pdfCanvas");
+				canvas.width = viewport.width;
+				canvas.height = viewport.height;
+				page.render({canvasContext: canvas.getContext("2d"), viewport});
+			});
+		});
 
-    // 줄바꿈 정리 (워드/엑셀 개행 깨짐 방지)
-    text = text.replace(/\r\n/g, '\n');
+		/* =========================
+		   시험지 표 렌더링
+		========================= */
+		function renderVocabTables(vocabList) {
+			const leftBody = document.getElementById('leftTableBody');
+			const rightBody = document.getElementById('rightTableBody');
+			leftBody.innerHTML = '';
+			rightBody.innerHTML = '';
 
-    insertTextAtCursor(text);
-});
+			vocabList.forEach((w, index) => {
+				const tr = document.createElement('tr');
 
-function insertTextAtCursor(text) {
-    const selection = window.getSelection();
-    if (!selection.rangeCount) return;
+				const td1 = document.createElement('td');
+				td1.textContent = '';
 
-    selection.deleteFromDocument();
-    selection.getRangeAt(0).insertNode(document.createTextNode(text));
-    selection.collapseToEnd();
-}
-    </script>
+				const td2 = document.createElement('td');
+				td2.className = 'vocab';
+				td2.textContent = w.vocab;
+				td2.contentEditable = true;
+				td2.onblur = () => w.vocab = td2.textContent;
+
+				const td3 = document.createElement('td');
+				td3.className = 'answer';
+				td3.textContent = w.meaning;
+				td3.contentEditable = true;
+				td3.onblur = () => w.meaning = td3.textContent;
+
+				tr.append(td1, td2, td3);
+
+				if (index < 20) leftBody.appendChild(tr);
+				else rightBody.appendChild(tr);
+			});
+		}
+
+		/* =========================
+		   서버 조회
+		========================= */
+		function requestDays() {
+			if (selected.length === 0) return alert('선택된 DAY가 없습니다!');
+
+			fetch('/testForm/submitDays', {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({days: selected})
+			})
+				.then(res => res.json())
+				.then(result => {
+					hideModal();
+					if (result.result) {
+						currentVocabList = result.result; // ⭐ 캐시 저장
+						renderVocabTables(currentVocabList);
+					}
+				});
+		}
+
+		submitBtn.addEventListener('click', requestDays);
+		document.getElementById('refreshBtn').addEventListener('click', requestDays);
+
+		/* =========================
+		   자세히보기 모달
+		========================= */
+		const detailModal = document.getElementById('detailModal');
+
+		function showDetailModal() {
+			if (currentVocabList.length === 0)
+				return alert('먼저 DAY 조회를 해주세요');
+
+			renderDetailTable(currentVocabList);
+			detailModal.style.display = 'block';
+		}
+
+		function hideDetailModal() {
+			detailModal.style.display = 'none';
+		}
+
+		function renderDetailTable(list) {
+			const tbody = document.getElementById('detailTableBody');
+			tbody.innerHTML = '';
+
+			list.forEach((w, index) => {
+				const tr = document.createElement('tr');
+
+				const day = w.day ?? '';
+				const vocab = w.vocab ?? '';
+				const meaning = w.meaning ?? '';
+				const type = w.type ?? '';
+
+				tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td contenteditable="true" class="edit-day">${day}</td>
+            <td contenteditable="true" class="edit-vocab">${vocab}</td>
+            <td contenteditable="true" class="edit-meaning">${meaning}</td>
+            <td contenteditable="true" class="edit-type">${type}</td>
+        `;
+
+				// 🔥 여기 핵심: 수정하면 원본 데이터 변경
+				tr.querySelector('.edit-day').oninput = e => {
+					w.day = e.target.innerText;
+					renderVocabTables(currentVocabList);
+				};
+
+				tr.querySelector('.edit-vocab').oninput = e => {
+					w.vocab = e.target.innerText;
+					renderVocabTables(currentVocabList);
+				};
+
+				tr.querySelector('.edit-meaning').oninput = e => {
+					w.meaning = e.target.innerText;
+					renderVocabTables(currentVocabList);
+				};
+
+				tr.querySelector('.edit-type').oninput = e => {
+					w.type = e.target.innerText;
+				};
+
+				tbody.appendChild(tr);
+			});
+		}
+
+		/* =========================
+		   모드
+		========================= */
+		function forStudent() {
+			document.querySelectorAll('.answer').forEach(el => el.style.visibility = 'hidden');
+		}
+		function forTeacher() {
+			document.querySelectorAll('.answer').forEach(el => el.style.visibility = 'visible');
+		}
+		function doPrint() {
+			window.print();
+		}
+
+		// ===== contenteditable 붙여넣기 스타일 제거 =====
+		document.addEventListener('paste', function (e) {
+
+			const target = e.target;
+
+			// contenteditable에서만 동작
+			if (!target.isContentEditable) return;
+
+			e.preventDefault();
+
+			// 순수 텍스트만 가져오기
+			let text = (e.clipboardData || window.clipboardData).getData('text/plain');
+
+			// 줄바꿈 정리 (워드/엑셀 개행 깨짐 방지)
+			text = text.replace(/\r\n/g, '\n');
+
+			insertTextAtCursor(text);
+		});
+
+		function insertTextAtCursor(text) {
+			const selection = window.getSelection();
+			if (!selection.rangeCount) return;
+
+			selection.deleteFromDocument();
+			selection.getRangeAt(0).insertNode(document.createTextNode(text));
+			selection.collapseToEnd();
+		}
+	</script>
 </body>
 
 </html>
