@@ -2,229 +2,254 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>단어장</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-</script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
 <style>
-:root {
-  --bg:#fafafa; --surface:#ffffff; --card:#f4f4f6; --border:#e2e2e8;
-  --accent:#933030; --accent-light:#fdf0f0; --accent-mid:#c45050;
-  --text:#1a1a2e; --muted:#888899; --pinned-bg:#fdf5f5;
+:root{
+  --bg:#fafafa;--surface:#ffffff;--card:#f4f4f6;--border:#e2e2e8;
+  --accent:#933030;--accent-light:#fdf0f0;--accent-mid:#c45050;
+  --text:#1a1a2e;--muted:#888899;--pinned-bg:#fdf5f5;
+  --header-h:56px;--tab-h:48px;
 }
-*{margin:0;padding:0;box-sizing:border-box;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-header{border-bottom:2px solid var(--accent);padding:20px 32px;display:flex;align-items:center;gap:16px;background:var(--surface);box-shadow:0 2px 12px rgba(147,48,48,0.08);}
-.logo-mark{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:4px;color:#fff;text-transform:uppercase;background:var(--accent);padding:5px 12px;}
-header h1{font-weight:900;font-size:20px;color:var(--text);letter-spacing:-0.5px;}
-.badge-count{margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;}
-.badge-count .num{color:var(--accent);font-size:18px;font-weight:500;min-width:28px;text-align:right;}
-.app-layout{display:grid;grid-template-columns:260px 1fr 300px;height:calc(100vh - 65px);}
+
+/* ══ HEADER ══ */
+header{
+  position:sticky;top:0;z-index:100;
+  height:var(--header-h);
+  border-bottom:2px solid var(--accent);
+  padding:0 16px;
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);
+  box-shadow:0 2px 12px rgba(147,48,48,0.08);
+}
+.logo-mark{ font-size:9px;font-weight:500;letter-spacing:3px;color:#fff;background:var(--accent);padding:4px 10px;white-space:nowrap;flex-shrink:0;}
+header h1{font-weight:900;font-size:17px;color:var(--text);letter-spacing:-0.5px;white-space:nowrap;}
+.badge-count{margin-left:auto; font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.badge-count .num{color:var(--accent);font-size:17px;font-weight:500;min-width:24px;text-align:right;}
+
+/* ══ PC 3단 ══ */
+.app-layout{display:grid;grid-template-columns:240px 1fr 280px;height:calc(100vh - var(--header-h));}
 .panel{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:var(--surface);}
 .panel:last-child{border-right:none;}
-.panel-header{padding:14px 18px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;background:var(--card);}
-#day-panel .panel-body{overflow-y:auto;flex:1;padding:14px;background:var(--bg);}
-.day-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
-.day-btn{aspect-ratio:1;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;font-weight:500;}
+.panel-header{padding:12px 16px;border-bottom:1px solid var(--border); font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;background:var(--card);flex-shrink:0;}
+
+/* ══ MOBILE TAB BAR ══ */
+.tab-bar{display:none;position:sticky;top:var(--header-h);z-index:90;height:var(--tab-h);background:var(--surface);border-bottom:2px solid var(--border);}
+.tab-bar{display:none;grid-template-columns:repeat(3,1fr);}
+.tab-btn{border:none;background:transparent; font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.15s;}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-btn .tab-icon{font-size:16px;line-height:1;}
+
+/* ══ DAY GRID ══ */
+#day-panel .panel-body{overflow-y:auto;flex:1;padding:12px;background:var(--bg);}
+.day-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;}
+.day-btn{aspect-ratio:1;background:var(--surface);border:1px solid var(--border);color:var(--text); font-size:12px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;font-weight:500;}
 .day-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
 .day-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
-.search-wrap{padding:10px 14px;border-bottom:1px solid var(--border);background:var(--card);}
-.search-wrap input{width:100%;background:var(--surface);border:1px solid var(--border);outline:none;color:var(--text);font-size:13px;padding:7px 12px;font-family:'Noto Sans KR',sans-serif;transition:border-color 0.15s;}
+
+/* ══ WORD LIST ══ */
+.search-wrap{padding:8px 12px;border-bottom:1px solid var(--border);background:var(--card);flex-shrink:0;position:relative;}
+.search-wrap input{width:100%;background:var(--surface);border:1px solid var(--border);outline:none;color:var(--text);font-size:15px;padding:8px 36px 8px 12px;font-family:'Noto Sans KR',sans-serif;transition:border-color 0.15s;border-radius:0;}
 .search-wrap input:focus{border-color:var(--accent);}
-#word-list{overflow-y:auto;flex:1;}
-.word-item{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:background 0.1s;}
-.word-item:hover{background:var(--card);}
+#word-list{overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;}
+.word-item{padding:10px 12px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:background 0.1s;}
+.word-item:active{background:var(--card);}
 .word-item.pinned{border-left:3px solid var(--accent);background:var(--pinned-bg);}
-.word-item.pinned:hover{background:#faeaea;}
 .word-info{flex:1;min-width:0;}
-.word-eng{font-family:'DM Mono',monospace;font-weight:500;font-size:13px;color:var(--text);display:flex;align-items:center;gap:5px;flex-wrap:nowrap;overflow:hidden;}
-.word-eng-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.word-day{font-family:'DM Mono',monospace;font-size:10px;margin-right:2px;color:var(--accent);}
-.word-kor{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pin-btn{border:1px solid var(--border);background:transparent;cursor:pointer;padding:4px 7px;font-size:13px;line-height:1;flex-shrink:0;transition:all 0.15s;color:var(--muted);}
-.pin-btn:hover{border-color:var(--accent);color:var(--accent);}
+.word-eng{ font-weight:500;font-size:15px;color:var(--text);display:flex;align-items:center;gap:5px;flex-wrap:nowrap;overflow:hidden;}
+.word-eng-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight: 600;margin-right: 5px;}
+.word-day{ font-size:12px;color:var(--accent);flex-shrink:0;}
+.word-kor{font-size:13px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pin-btn{border:1px solid var(--border);background:transparent;cursor:pointer;padding:6px 8px;font-size:14px;line-height:1;flex-shrink:0;transition:all 0.15s;color:var(--muted);min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center;}
+.pin-btn:hover,.pin-btn:active{border-color:var(--accent);color:var(--accent);}
 .pin-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
-.type-tag{display:inline-block;font-family:'Noto Sans KR',sans-serif;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;white-space:nowrap;flex-shrink:0;letter-spacing:0;}
+.type-tag{display:inline-block;font-family:'Noto Sans KR',sans-serif;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;white-space:nowrap;flex-shrink:0;}
 .type-tag.표제어{background:#fdf0f0;color:#933030;border:1px solid #f0c0c0;}
 .type-tag.유의어{background:#efefff;color:#3131eb;border:1px solid #a3a3ff;}
-.result-actions{padding:10px;border-bottom:1px solid var(--border);display:flex;gap:6px;background:var(--card);}
-#result-list{overflow-y:auto;flex:1;padding:8px;background:var(--bg);}
-.result-item{background:var(--surface);border:1px solid var(--border);padding:8px 12px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:border-color 0.1s;}
-.result-item.pinned-item{border-left:3px solid var(--accent);background:var(--pinned-bg);}
-.result-item:hover{border-color:var(--accent);}
-.result-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);min-width:20px;}
-.result-eng{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;flex:1;color:var(--text);}
-.result-kor{font-size:11px;color:var(--muted);text-align:right;}
-.remove-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 2px;line-height:1;transition:color 0.1s;}
-.remove-btn:hover{color:var(--accent);}
-.btn{padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;transition:all 0.15s;}
-.btn-primary{background:var(--accent);color:#fff;}
-.btn-primary:hover{background:var(--accent-mid);}
-.btn-complete{background:var(--accent);color:#fff;font-size:12px;padding:8px 18px;letter-spacing:1px;}
-.btn-complete:hover{background:var(--accent-mid);}
-.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
-.btn-ghost:hover{color:var(--text);border-color:var(--text);}
-.empty-msg{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;line-height:1.8;}
-.empty-msg .hint{font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-top:8px;}
-::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-::-webkit-scrollbar-thumb:hover{background:var(--accent);}
 
-/* ── 시험지 모달 ── */
+/* ══ RESULT LIST ══ */
+.result-actions{padding:8px 10px;border-bottom:1px solid var(--border);display:flex;gap:6px;background:var(--card);flex-shrink:0;flex-wrap:wrap;}
+#result-list{overflow-y:auto;flex:1;padding:8px;background:var(--bg);-webkit-overflow-scrolling:touch;}
+.result-item{background:var(--surface);border:1px solid var(--border);padding:8px 10px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;gap:6px;transition:border-color 0.1s;}
+.result-item.pinned-item{border-left:3px solid var(--accent);background:var(--pinned-bg);}
+.result-num{ font-size:12px;color:var(--muted);min-width:20px;flex-shrink:0;}
+.result-eng{ font-size:14px;font-weight:500;flex:6;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.result-kor{font-size:13px;color:var(--muted);text-align:right;flex:4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.remove-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px;line-height:1;flex-shrink:0;min-width:28px;min-height:28px;display:flex;align-items:center;justify-content:center;}
+.remove-btn:hover,.remove-btn:active{color:var(--accent);}
+
+/* ══ BUTTONS ══ */
+.btn{padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;border:none; letter-spacing:1px;text-transform:uppercase;transition:all 0.15s;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:active{background:var(--accent-mid);}
+.btn-complete{background:var(--accent);color:#fff;font-size:13px;padding:8px 16px;letter-spacing:1px;}
+.btn-complete:active{background:var(--accent-mid);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
+.btn-ghost:active{color:var(--text);border-color:var(--text);}
+
+.empty-msg{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;line-height:1.8;}
+.empty-msg .hint{font-size:11px; letter-spacing:1px;text-transform:uppercase;margin-top:8px;}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+/* ══ 시험지 모달 ══ */
 .exam-modal{
-  display:none;
-  position:fixed;
-  z-index:2000;
-  left:0;top:0;
-  width:100%;height:100%;
-  background:rgba(0,0,0,0.6);
-  overflow:auto;
+  display:none;position:fixed;z-index:2000;
+  left:0;top:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.7);
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
 }
 .exam-modal-inner{
   background:#e5e5e5;
-  margin:20px auto;
-  padding:0;
-  width:fit-content;
-  border-radius:4px;
-  overflow:hidden;
+  margin:0 auto;
+  width:100%;
+  max-width:820px;
 }
 .exam-toolbar{
-  background:#fff;
-  border-bottom:2px solid var(--accent);
-  padding:12px 20px;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  width:210mm;
-  box-sizing:border-box;
+  background:#fff;border-bottom:2px solid var(--accent);
+  padding:10px 14px;display:flex;align-items:center;gap:8px;
+  width:100%;box-sizing:border-box;
+  position:sticky;top:0;z-index:10;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
 }
-.exam-toolbar-title{
-  font-family:'DM Mono',monospace;
-  font-size:11px;
-  letter-spacing:2px;
-  text-transform:uppercase;
-  color:var(--muted);
-  flex:1;
-}
-.exam-btn{
-  padding:6px 14px;
-  font-size:11px;
-  font-weight:700;
-  cursor:pointer;
-  border:none;
-  font-family:'DM Mono',monospace;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  transition:all 0.15s;
-  border-radius:2px;
-}
+.exam-toolbar::-webkit-scrollbar{display:none;}
+.exam-toolbar-title{ font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);flex:1;min-width:60px;white-space:nowrap;}
+.exam-btn{padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;border:none; letter-spacing:1px;text-transform:uppercase;transition:all 0.15s;border-radius:2px;min-height:36px;white-space:nowrap;}
 .exam-btn-red{background:var(--accent);color:#fff;}
-.exam-btn-red:hover{background:var(--accent-mid);}
+.exam-btn-red:active{background:var(--accent-mid);}
 .exam-btn-outline{background:transparent;color:var(--accent);border:1px solid var(--accent);}
-.exam-btn-outline:hover{background:var(--accent-light);}
+.exam-btn-outline:active{background:var(--accent-light);}
 .exam-btn-close{background:transparent;color:var(--muted);border:1px solid var(--border);}
-.exam-btn-close:hover{color:var(--text);border-color:var(--text);}
 
-/* ── 시험지 paper ── */
+/* ── 시험지 스크롤 래퍼 ── */
+.paper-scroller{
+  background:#e5e5e5;
+  padding:0;
+  position:relative;
+}
+
+/* A4 용지 고정 크기 */
 .paper{
   position:relative;
-  width:210mm;
-  height:297mm;
+  width:210mm;height:297mm;
   background:white;
-  margin:20px auto;
+  margin:0 auto;
   box-shadow:0 0 10px rgba(0,0,0,.25);
+  transform-origin:top left;
 }
 #pdfCanvas{position:absolute;left:0;top:0;width:210mm;height:297mm;}
-.tables{
-  position:absolute;
-  left:50%;
-  top:66.2mm;
-  width:172.04mm;
-  transform:translateX(-50%);
-  display:flex;
-}
-.form-table{
-  width:50%;
-  border-collapse:collapse;
-  table-layout:fixed;
-  font-size:9pt;
-  font-family:"HCR Batang","한컴바탕",serif;
-  font-weight:bold;
-}
+.tables{position:absolute;left:50%;top:66.2mm;width:172.04mm;transform:translateX(-50%);display:flex;}
+.form-table{width:50%;border-collapse:collapse;table-layout:fixed;font-size:9pt;font-family:"HCR Batang","한컴바탕",serif;font-weight:bold;}
 .form-table td{height:9.8mm;padding:0 1px;text-align:center;vertical-align:middle;}
 .form-table.left td:last-child{border-right:0;}
 .form-table col.c1{width:8.78mm;}
 .form-table col.c2{width:33.63mm;}
 .form-table col.c3{width:43.61mm;}
 .answer{font-size:8pt;}
-#exam-selected-days{
-  position:absolute;
-  left:49%;top:24.5mm;
-  width:25.04mm;
-  font-size:9.5pt;
-  font-family:"HCR Batang","한컴바탕",serif;
-  font-weight:lighter;
+#exam-selected-days{position:absolute;left:49%;top:24.5mm;width:25.04mm;font-size:9.5pt;font-family:"HCR Batang","한컴바탕",serif;font-weight:lighter;}
+#exam-grade{position:absolute;left:48.7%;top:32mm;width:25.04mm;font-size:9.5pt;font-family:"HCR Batang","한컴바탕",serif;font-weight:lighter;}
+
+/* ══ 모바일 전용 ══ */
+@media(max-width:767px){
+  .app-layout{
+    display:block;
+    height:calc(100vh - var(--header-h) - var(--tab-h));
+    overflow:hidden;position:relative;
+  }
+  .tab-bar{display:grid;}
+  .panel{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    opacity:0;pointer-events:none;transform:translateX(20px);
+    transition:opacity 0.2s,transform 0.2s;border-right:none;
+  }
+  .panel.tab-active{opacity:1;pointer-events:auto;transform:translateX(0);}
+  .panel-header{display:none;}
+  .day-grid{grid-template-columns:repeat(6,1fr);gap:3px;}
+  .day-btn{font-size:11px;}
+  .result-actions{flex-wrap:nowrap;}
+  .btn-complete{padding:8px 12px;font-size:11px;}
+  .exam-toolbar-title{display:none;}
+  .paper-scroller{padding:0;overflow:hidden;}
 }
 
-/* 자세히보기 모달 */
-.detail-modal{
-  display:none;
-  position:fixed;
-  z-index:3000;
-  left:0;top:0;
-  width:100%;height:100%;
-  background:rgba(0,0,0,0.5);
+/* ══ 태블릿 2단 ══ */
+@media(min-width:768px) and (max-width:1099px){
+  .app-layout{grid-template-columns:220px 1fr;height:calc(100vh - var(--header-h));}
+  .panel:nth-child(2){border-right:none;}
+  .panel:nth-child(3){
+    position:fixed;bottom:0;left:0;right:0;
+    height:auto;height:44vh;
+    border-top:2px solid var(--accent);
+    box-shadow:0 -4px 20px rgba(0,0,0,0.12);
+    z-index:50;
+  }
+  .panel:nth-child(3) #result-list{max-height:calc(44vh - 90px);}
+  .app-layout{padding-bottom:44vh;}
 }
-.detail-modal-inner{
-  background:#fff;
-  margin:2% auto;
-  padding:20px;
-  width:80%;
-  max-height:88%;
-  overflow:auto;
-  border-radius:12px;
-  -ms-overflow-style:none;
-  scrollbar-width:none;
-}
-.detail-modal-inner::-webkit-scrollbar{display:none;}
 
+/* ══ PC ══ */
+@media(min-width:1100px){
+  .app-layout{grid-template-columns:240px 6fr 4fr;height:calc(100vh - var(--header-h));}
+  .panel{opacity:1;pointer-events:auto;transform:none;position:relative;}
+  .tab-bar{display:none!important;}
+}
+
+/* ══ 프린트 ══ */
 @media print{
   @page{size:A4;margin:0mm;}
   html,body{width:210mm;height:297mm;overflow:hidden;background:white;}
   .exam-modal{display:block!important;position:static;background:none;overflow:hidden;}
-  .exam-toolbar,.no-print{display:none!important;}
-  .exam-modal-inner{margin:0;border-radius:0;}
-  .paper{box-shadow:none;margin:0;position:fixed;top:0;left:0;page-break-after:avoid;page-break-inside:avoid;overflow:hidden;}
-  header,.app-layout{display:none!important;}
+  .exam-toolbar,.no-print,.tab-bar,header,.app-layout{display:none!important;}
+  .exam-modal-inner{margin:0;background:white;}
+  .paper-scroller{padding:0;background:white;overflow:visible;}
+  .paper{
+    box-shadow:none;margin:0;
+    position:fixed;top:0;left:0;
+    transform:none!important; /* 프린트 시 scale 제거 */
+    width:210mm!important;height:297mm!important;
+  }
 }
+@media(pointer:coarse){::-webkit-scrollbar{width:2px;}}
 </style>
 </head>
 <body>
+
 <header>
   <div class="logo-mark">VOCAB</div>
-  <h1>단어장 메이커</h1>
+  <h1>단어장</h1>
   <div class="badge-count">선택됨 <span class="num" id="total-count">0</span></div>
 </header>
+
+<nav class="tab-bar" id="tabBar">
+  <button class="tab-btn active" onclick="switchTab(0)" id="tab0"><span class="tab-icon">📅</span>DAY</button>
+  <button class="tab-btn" onclick="switchTab(1)" id="tab1"><span class="tab-icon">📝</span>단어</button>
+  <button class="tab-btn" onclick="switchTab(2)" id="tab2"><span class="tab-icon">✅</span>선택됨</button>
+</nav>
+
 <div class="app-layout">
-  <div class="panel" id="day-panel">
+  <div class="panel tab-active" id="day-panel">
     <div class="panel-header">DAY 선택</div>
     <div class="panel-body"><div class="day-grid" id="day-grid"></div></div>
   </div>
-  <div class="panel">
+  <div class="panel" id="word-panel">
     <div class="panel-header">
       <span>단어 목록</span>
-      <span id="word-count-badge" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);"></span>
+      <span id="word-count-badge" style=" font-size:9px;color:var(--muted);"></span>
     </div>
     <div class="search-wrap">
-      <input type="text" id="search-input" placeholder="단어 검색..." oninput="renderWordList()" />
+      <input type="text" id="search-input" placeholder="단어 검색..." oninput="renderWordList();toggleClear()" />
+      <button id="search-clear" onclick="clearSearch()" style="display:none;position:absolute;right:20px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:4px;line-height:1;">✕</button>
     </div>
-    <div id="word-list"><div class="empty-msg">DAY를 선택하세요<div class="hint">← left panel</div></div></div>
+    <div id="word-list"><div class="empty-msg">DAY를 선택하세요</div></div>
   </div>
-  <div class="panel">
+  <div class="panel" id="result-panel">
     <div class="panel-header">최종 단어장</div>
     <div class="result-actions">
       <button class="btn btn-primary" onclick="doRandom()">랜덤</button>
@@ -235,61 +260,59 @@ header h1{font-weight:900;font-size:20px;color:var(--text);letter-spacing:-0.5px
   </div>
 </div>
 
-<!-- ── 시험지 모달 ── -->
+<!-- 시험지 모달 -->
 <div id="examModal" class="exam-modal">
   <div class="exam-modal-inner">
     <div class="exam-toolbar no-print">
       <span class="exam-toolbar-title">시험지 미리보기</span>
       <button class="exam-btn exam-btn-outline" onclick="forStudent()">학생용</button>
-      <button class="exam-btn exam-btn-red" onclick="forTeacher()">선생용</button>
+      <button class="exam-btn exam-btn-outline" onclick="forTeacher()">선생용</button>
       <button class="exam-btn exam-btn-red" onclick="doPrint()">프린트</button>
       <button class="exam-btn exam-btn-close" onclick="closeExamModal()">닫기</button>
     </div>
-    <div class="paper">
-      <canvas id="pdfCanvas"></canvas>
-      <div id="exam-selected-days">Day</div>
-      <div id="exam-grade" style="position:absolute;left:48.7%;top:32mm;width:25.04mm;font-size:9.5pt;font-family:'HCR Batang','한컴바탕',serif;font-weight:lighter;border:none;padding:0;outline:none;">고등부</div>
-      <div class="tables">
-        <table class="form-table left">
-          <colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup>
-          <tbody id="leftTableBody"></tbody>
-        </table>
-        <table class="form-table">
-          <colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup>
-          <tbody id="rightTableBody"></tbody>
-        </table>
+    <div class="paper-scroller" id="paperScroller">
+      <div class="paper" id="examPaper">
+        <canvas id="pdfCanvas"></canvas>
+        <div id="exam-selected-days">Day</div>
+        <div id="exam-grade">고등부</div>
+        <div class="tables">
+          <table class="form-table left">
+            <colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup>
+            <tbody id="leftTableBody"></tbody>
+          </table>
+          <table class="form-table">
+            <colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup>
+            <tbody id="rightTableBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ── 자세히보기 모달 ── -->
-<div id="detailModal" class="detail-modal">
-  <div class="detail-modal-inner">
-    <h2 style="margin-bottom:12px;">단어 전체 목록</h2>
-    <table border="1" style="width:100%;border-collapse:collapse;font-size:14px;">
-      <thead>
-        <tr>
-          <th style="width:6%;">번호</th>
-          <th style="width:10%;">DAY</th>
-          <th style="width:37%;">단어</th>
-          <th style="width:37%;">뜻</th>
-          <th style="width:10%;">유형</th>
-        </tr>
-      </thead>
-      <tbody id="detailTableBody"></tbody>
-    </table>
-    <br>
-    <button class="exam-btn exam-btn-red" style="width:100%;padding:10px;" onclick="closeDetailModal()">닫기</button>
-  </div>
-</div>
-
 <script>
-/* ── 단어장 상태 ── */
-let selectedDays = new Set();
-let serverWords  = [];
-let pinnedIds    = new Set();
-let resultWords  = [];
+/* ── 상태 ── */
+let selectedDays=new Set(),serverWords=[],pinnedIds=new Set(),resultWords=[];
+let activeTab=0,pdfRendered=false;
+
+/* ── 탭 전환 ── */
+function switchTab(n){
+  activeTab=n;
+  ['day-panel','word-panel','result-panel'].forEach((id,i)=>{
+    document.getElementById(id).classList.toggle('tab-active',i===n);
+    document.getElementById('tab'+i).classList.toggle('active',i===n);
+  });
+}
+
+function clearSearch(){
+  document.getElementById('search-input').value='';
+  document.getElementById('search-clear').style.display='none';
+  renderWordList();
+}
+function toggleClear(){
+  const v=document.getElementById('search-input').value;
+  document.getElementById('search-clear').style.display=v?'block':'none';
+}
 
 /* ── DAY GRID ── */
 function renderDayGrid(){
@@ -298,8 +321,7 @@ function renderDayGrid(){
   for(let d=1;d<=50;d++){
     const btn=document.createElement('button');
     btn.className='day-btn'+(selectedDays.has(d)?' active':'');
-    btn.textContent=d;
-    btn.onclick=()=>toggleDay(d);
+    btn.textContent=d;btn.onclick=()=>toggleDay(d);
     grid.appendChild(btn);
   }
 }
@@ -315,7 +337,7 @@ function toggleDay(d){
   })
   .then(r=>r.json())
   .then(res=>{serverWords=res.result||[];renderWordList();})
-  .catch(()=>{renderWordList();});
+  .catch(()=>renderWordList());
 }
 
 function getFilteredWords(){
@@ -335,7 +357,7 @@ function renderWordList(){
   const list=document.getElementById('word-list');
   const badge=document.getElementById('word-count-badge');
   if(serverWords.length===0){
-    list.innerHTML='<div class="empty-msg">DAY를 선택하세요<div class="hint">← left panel</div></div>';
+    list.innerHTML='<div class="empty-msg">DAY를 선택하세요</div>';
     badge.textContent='';return;
   }
   const filtered=getFilteredWords();
@@ -343,23 +365,23 @@ function renderWordList(){
   if(filtered.length===0){list.innerHTML='<div class="empty-msg">검색 결과 없음</div>';return;}
   list.innerHTML=filtered.map(w=>{
     const pinned=pinnedIds.has(w.id);
-    return `<div class="word-item ${pinned?'pinned':''}" onclick="togglePin(${w.id},'${esc(w.vocab)}','${esc(w.meaning)}','${esc(w.type||'')}')">
+    return `<div class="word-item${pinned?' pinned':''}" onclick="togglePin(${w.id},'${esc(w.vocab)}','${esc(w.meaning)}','${esc(w.type||'')}')">
       <div class="word-info">
         <div class="word-eng">
-          <span class="word-day">D${String(w.day).padStart(2,'0')}</span>
+          <span class="word-day">D.${String(w.day).padStart(2,'0')}</span>
           <span class="word-eng-text">${esc(w.vocab)}</span>
           ${typeTag(w.type)}
         </div>
         <div class="word-kor">${esc(w.meaning)}</div>
       </div>
-      <button class="pin-btn ${pinned?'active':''}" onclick="event.stopPropagation();togglePin(${w.id},'${esc(w.vocab)}','${esc(w.meaning)}','${esc(w.type||'')}')">${pinned?'★':'☆'}</button>
+      <button class="pin-btn${pinned?' active':''}" onclick="event.stopPropagation();togglePin(${w.id},'${esc(w.vocab)}','${esc(w.meaning)}','${esc(w.type||'')}')">${pinned?'★':'☆'}</button>
     </div>`;
   }).join('');
 }
 
 function togglePin(id,eng,kor,type){
   if(pinnedIds.has(id)){pinnedIds.delete(id);resultWords=resultWords.filter(r=>r.id!==id);}
-  else{pinnedIds.add(id);if(!resultWords.find(r=>r.id===id))resultWords.push({id,eng,kor,type});}
+  else{pinnedIds.add(id);if(!resultWords.find(r=>r.id===id)) resultWords.push({id,eng,kor,type});}
   renderWordList();renderResult();
 }
 
@@ -371,6 +393,7 @@ function doRandom(){
   const slots=Math.min(40-pinned.length,pool.length);
   resultWords=[...pinned,...pool.slice(0,slots).map(w=>({id:w.id,eng:w.vocab,kor:w.meaning,type:w.type||''}))];
   renderResult();
+  if(window.innerWidth<768) switchTab(2);
 }
 
 function removeResult(id){
@@ -378,9 +401,7 @@ function removeResult(id){
   renderWordList();renderResult();
 }
 
-function clearAll(){
-  pinnedIds.clear();resultWords=[];renderWordList();renderResult();
-}
+function clearAll(){pinnedIds.clear();resultWords=[];renderWordList();renderResult();}
 
 function renderResult(){
   const list=document.getElementById('result-list');
@@ -389,25 +410,25 @@ function renderResult(){
     list.innerHTML='<div class="empty-msg">단어를 선택하거나<br>랜덤으로 채워보세요</div>';return;
   }
   list.innerHTML=resultWords.map((w,i)=>`
-    <div class="result-item ${pinnedIds.has(w.id)?'pinned-item':''}">
+    <div class="result-item${pinnedIds.has(w.id)?' pinned-item':''}">
       <span class="result-num">${String(i+1).padStart(2,'0')}</span>
       <span class="result-eng">${esc(w.eng)}</span>
       <span class="result-kor">${esc(w.kor)}</span>
-      <button class="remove-btn" onclick="removeResult(${w.id})" title="제거">×</button>
+      <button class="remove-btn" onclick="removeResult(${w.id})">×</button>
     </div>`).join('');
 }
 
 /* ── 시험지 모달 ── */
-let pdfRendered = false;
-
 function openExamModal(){
   if(resultWords.length===0){alert('단어를 먼저 선택해주세요.');return;}
-  if(resultWords.length>40){alert('단어가 40개를 초과했습니다.\n현재 '+resultWords.length+'개 선택됨');return;}
+  if(resultWords.length!=40){alert('단어 40개\n현재 '+resultWords.length+'개');return;}
   renderVocabTables(resultWords);
   updateExamDayLabel();
   document.getElementById('examModal').style.display='block';
   document.body.style.overflow='hidden';
   if(!pdfRendered) renderPdf();
+  // 모바일 축소 적용
+  requestAnimationFrame(scalePaper);
 }
 
 function closeExamModal(){
@@ -415,102 +436,90 @@ function closeExamModal(){
   document.body.style.overflow='';
 }
 
+/* 모바일에서 A4 용지를 화면 너비에 맞게 scale */
+function scalePaper(){
+  const paper=document.getElementById('examPaper');
+  const scroller=document.getElementById('paperScroller');
+  const modal=document.getElementById('examModal');
+
+  // 210mm ≈ 794px, 297mm ≈ 1123px @ 96dpi
+  const paperW=794, paperH=1123;
+  const available=modal.clientWidth;
+
+  if(available < paperW){
+    const scale=available/paperW;
+    paper.style.transform=`scale(${scale})`;
+    paper.style.transformOrigin='top left';
+    paper.style.marginLeft='0';
+    // scale 후 실제 차지하는 높이만큼 scroller에 확보
+    scroller.style.height=(paperH*scale)+'px';
+    scroller.style.overflow='hidden';
+  } else {
+    paper.style.transform='none';
+    paper.style.transformOrigin='top left';
+    paper.style.marginLeft='auto';
+    scroller.style.height='auto';
+    scroller.style.overflow='auto';
+  }
+}
+
+window.addEventListener('resize',()=>{
+  if(document.getElementById('examModal').style.display==='block') scalePaper();
+});
+
 function updateExamDayLabel(){
   const days=[...selectedDays].sort((a,b)=>a-b);
   const el=document.getElementById('exam-selected-days');
-  if(days.length===0){el.textContent='Day';return;}
-  el.textContent=`Day   ${days[0]} ~ ${days[days.length-1]}`;
+  el.textContent=days.length===0?'Day':`Day   ${days[0]} ~ ${days[days.length-1]}`;
 }
 
 function renderPdf(){
   pdfjsLib.getDocument('/testForm.pdf').promise.then(pdf=>{
     pdf.getPage(1).then(page=>{
-      const viewport=page.getViewport({scale:2});
+      const vp=page.getViewport({scale:2});
       const canvas=document.getElementById('pdfCanvas');
-      canvas.width=viewport.width;
-      canvas.height=viewport.height;
-      page.render({canvasContext:canvas.getContext('2d'),viewport});
+      canvas.width=vp.width;canvas.height=vp.height;
+      page.render({canvasContext:canvas.getContext('2d'),viewport:vp});
       pdfRendered=true;
     });
-  }).catch(()=>{console.warn('PDF 로드 실패 — /testForm.pdf 경로 확인');});
+  }).catch(()=>console.warn('PDF 로드 실패'));
 }
 
 function renderVocabTables(list){
-  const leftBody=document.getElementById('leftTableBody');
-  const rightBody=document.getElementById('rightTableBody');
-  leftBody.innerHTML='';rightBody.innerHTML='';
+  const lb=document.getElementById('leftTableBody'),rb=document.getElementById('rightTableBody');
+  lb.innerHTML='';rb.innerHTML='';
   list.forEach((w,i)=>{
     const tr=document.createElement('tr');
-    const td1=document.createElement('td'); td1.textContent='';
-    const td2=document.createElement('td');
-    td2.className='vocab';td2.textContent=w.eng;
+    const td1=document.createElement('td');td1.textContent='';
+    const td2=document.createElement('td');td2.className='vocab';td2.textContent=w.eng;
     td2.contentEditable=true;td2.onblur=()=>w.eng=td2.textContent;
-    const td3=document.createElement('td');
-    td3.className='answer';td3.textContent=w.kor;
+    const td3=document.createElement('td');td3.className='answer';td3.textContent=w.kor;
     td3.contentEditable=true;td3.onblur=()=>w.kor=td3.textContent;
     tr.append(td1,td2,td3);
-    if(i<20) leftBody.appendChild(tr);
-    else rightBody.appendChild(tr);
+    if(i<20) lb.appendChild(tr); else rb.appendChild(tr);
   });
 }
 
-function forStudent(){
-  document.querySelectorAll('.answer').forEach(el=>el.style.visibility='hidden');
-}
-function forTeacher(){
-  document.querySelectorAll('.answer').forEach(el=>el.style.visibility='visible');
-}
+function forStudent(){document.querySelectorAll('.answer').forEach(el=>el.style.visibility='hidden');}
+function forTeacher(){document.querySelectorAll('.answer').forEach(el=>el.style.visibility='visible');}
 function doPrint(){window.print();}
 
-/* ── 자세히보기 모달 ── */
-function openDetailModal(){
-  renderDetailTable(resultWords);
-  document.getElementById('detailModal').style.display='block';
-}
-function closeDetailModal(){
-  document.getElementById('detailModal').style.display='none';
-}
-
-function renderDetailTable(list){
-  const tbody=document.getElementById('detailTableBody');
-  tbody.innerHTML='';
-  list.forEach((w,i)=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`
-      <td>${i+1}</td>
-      <td contenteditable="true">${esc(w.day||'')}</td>
-      <td contenteditable="true" class="ed-vocab">${esc(w.eng)}</td>
-      <td contenteditable="true" class="ed-meaning">${esc(w.kor)}</td>
-      <td contenteditable="true">${esc(w.type||'')}</td>`;
-    tr.querySelector('.ed-vocab').oninput=e=>{w.eng=e.target.innerText;renderVocabTables(resultWords);};
-    tr.querySelector('.ed-meaning').oninput=e=>{w.kor=e.target.innerText;renderVocabTables(resultWords);};
-    tbody.appendChild(tr);
-  });
-}
-
-/* ── 붙여넣기 스타일 제거 ── */
+/* ── 유틸 ── */
 document.addEventListener('paste',function(e){
   if(!e.target.isContentEditable)return;
   e.preventDefault();
   let text=(e.clipboardData||window.clipboardData).getData('text/plain').replace(/\r\n/g,'\n');
   const sel=window.getSelection();
   if(!sel.rangeCount)return;
-  sel.deleteFromDocument();
-  sel.getRangeAt(0).insertNode(document.createTextNode(text));
-  sel.collapseToEnd();
+  sel.deleteFromDocument();sel.getRangeAt(0).insertNode(document.createTextNode(text));sel.collapseToEnd();
 });
 
-/* ESC 닫기 */
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){
-    if(document.getElementById('detailModal').style.display==='block') closeDetailModal();
-    else closeExamModal();
-  }
+  if(e.key==='Escape' && document.getElementById('examModal').style.display==='block') closeExamModal();
 });
+document.getElementById('examModal').addEventListener('click',function(e){if(e.target===this)closeExamModal();});
 
-function esc(s){
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 
 renderDayGrid();
 </script>
