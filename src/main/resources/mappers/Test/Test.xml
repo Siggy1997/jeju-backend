@@ -6,7 +6,8 @@
 
     <select id="getVocabListByDays" resultType="kr.co.siggy.server.common.CamelCaseMap">
  		SELECT
- 			DAY
+ 			id
+ 			, DAY
  			, VOCAB
  			, MEANING
  			, TYPE
@@ -25,8 +26,6 @@
 	            </otherwise>
         	</choose>
     	</where>
-    	ORDER BY RAND()
-    	LIMIT 40
 	</select>
 
 </mapper>

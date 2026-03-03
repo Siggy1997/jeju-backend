@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단어장</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+</script>
+<style>
+:root {
+  --bg:#fafafa; --surface:#ffffff; --card:#f4f4f6; --border:#e2e2e8;
+  --accent:#933030; --accent-light:#fdf0f0; --accent-mid:#c45050;
+  --text:#1a1a2e; --muted:#888899; --pinned-bg:#fdf5f5;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+header{border-bottom:2px solid var(--accent);padding:20px 32px;display:flex;align-items:center;gap:16px;background:var(--surface);box-shadow:0 2px 12px rgba(147,48,48,0.08);}
+.logo-mark{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:4px;color:#fff;text-transform:uppercase;background:var(--accent);padding:5px 12px;}
+header h1{font-weight:900;font-size:20px;color:var(--text);letter-spacing:-0.5px;}
+.badge-count{margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.badge-count .num{color:var(--accent);font-size:18px;font-weight:500;min-width:28px;text-align:right;}
+.app-layout{display:grid;grid-template-columns:260px 1fr 300px;height:calc(100vh - 65px);}
+.panel{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;background:var(--surface);}
+.panel:last-child{border-right:none;}
+.panel-header{padding:14px 18px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;align-items:center;background:var(--card);}
+#day-panel .panel-body{overflow-y:auto;flex:1;padding:14px;background:var(--bg);}
+.day-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.day-btn{aspect-ratio:1;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;font-weight:500;}
+.day-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+.day-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700;}
+.search-wrap{padding:10px 14px;border-bottom:1px solid var(--border);background:var(--card);}
+.search-wrap input{width:100%;background:var(--surface);border:1px solid var(--border);outline:none;color:var(--text);font-size:13px;padding:7px 12px;font-family:'Noto Sans KR',sans-serif;transition:border-color 0.15s;}
+.search-wrap input:focus{border-color:var(--accent);}
+#word-list{overflow-y:auto;flex:1;}
+.word-item{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:background 0.1s;}
+.word-item:hover{background:var(--card);}
+.word-item.pinned{border-left:3px solid var(--accent);background:var(--pinned-bg);}
+.word-item.pinned:hover{background:#faeaea;}
+.word-info{flex:1;min-width:0;}
+.word-eng{font-family:'DM Mono',monospace;font-weight:500;font-size:13px;color:var(--text);display:flex;align-items:center;gap:5px;flex-wrap:nowrap;overflow:hidden;}
+.word-eng-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.word-day{font-family:'DM Mono',monospace;font-size:10px;margin-right:2px;color:var(--accent);}
+.word-kor{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pin-btn{border:1px solid var(--border);background:transparent;cursor:pointer;padding:4px 7px;font-size:13px;line-height:1;flex-shrink:0;transition:all 0.15s;color:var(--muted);}
+.pin-btn:hover{border-color:var(--accent);color:var(--accent);}
+.pin-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.type-tag{display:inline-block;font-family:'Noto Sans KR',sans-serif;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;white-space:nowrap;flex-shrink:0;letter-spacing:0;}
+.type-tag.표제어{background:#fdf0f0;color:#933030;border:1px solid #f0c0c0;}
+.type-tag.유의어{background:#efefff;color:#3131eb;border:1px solid #a3a3ff;}
+.result-actions{padding:10px;border-bottom:1px solid var(--border);display:flex;gap:6px;background:var(--card);}
+#result-list{overflow-y:auto;flex:1;padding:8px;background:var(--bg);}
+.result-item{background:var(--surface);border:1px solid var(--border);padding:8px 12px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;gap:8px;transition:border-color 0.1s;}
+.result-item.pinned-item{border-left:3px solid var(--accent);background:var(--pinned-bg);}
+.result-item:hover{border-color:var(--accent);}
+.result-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);min-width:20px;}
+.result-eng{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;flex:1;color:var(--text);}
+.result-kor{font-size:11px;color:var(--muted);text-align:right;}
+.remove-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:0 2px;line-height:1;transition:color 0.1s;}
+.remove-btn:hover{color:var(--accent);}
+.btn{padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;transition:all 0.15s;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{background:var(--accent-mid);}
+.btn-complete{background:var(--accent);color:#fff;font-size:12px;padding:8px 18px;letter-spacing:1px;}
+.btn-complete:hover{background:var(--accent-mid);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
+.btn-ghost:hover{color:var(--text);border-color:var(--text);}
+.empty-msg{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px;line-height:1.8;}
+.empty-msg .hint{font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-top:8px;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent);}
+
+/* ── 시험지 모달 ── */
+.exam-modal{
+  display:none;
+  position:fixed;
+  z-index:2000;
+  left:0;top:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.6);
+  overflow:auto;
+}
+.exam-modal-inner{
+  background:#e5e5e5;
+  margin:20px auto;
+  padding:0;
+  width:fit-content;
+  border-radius:4px;
+  overflow:hidden;
+}
+.exam-toolbar{
+  background:#fff;
+  border-bottom:2px solid var(--accent);
+  padding:12px 20px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:210mm;
+  box-sizing:border-box;
+}
+.exam-toolbar-title{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--muted);
+  flex:1;
+}
+.exam-btn{
+  padding:6px 14px;
+  font-size:11px;
+  font-weight:700;
+  cursor:pointer;
+  border:none;
+  font-family:'DM Mono',monospace;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  transition:all 0.15s;
+  border-radius:2px;
+}
+.exam-btn-red{background:var(--accent);color:#fff;}
+.exam-btn-red:hover{background:var(--accent-mid);}
+.exam-btn-outline{background:transparent;color:var(--accent);border:1px solid var(--accent);}
+.exam-btn-outline:hover{background:var(--accent-light);}
+.exam-btn-close{background:transparent;color:var(--muted);border:1px solid var(--border);}
+.exam-btn-close:hover{color:var(--text);border-color:var(--text);}
+
+/* ── 시험지 paper ── */
+.paper{
+  position:relative;
+  width:210mm;
+  height:297mm;
+  background:white;
+  margin:20px auto;
+  box-shadow:0 0 10px rgba(0,0,0,.25);
+}
+#pdfCanvas{position:absolute;left:0;top:0;width:210mm;height:297mm;}
+.tables{
+  position:absolute;
+  left:50%;
+  top:66.2mm;
+  width:172.04mm;
+  transform:translateX(-50%);
+  display:flex;
+}
+.form-table{
+  width:50%;
+  border-collapse:collapse;
+  table-layout:fixed;
+  font-size:9pt;
+  font-family:"HCR Batang","한컴바탕",serif;
+  font-weight:bold;
+}
+.form-table td{height:9.8mm;padding:0 1px;text-align:center;vertical-align:middle;}
+.form-table.left td:last-child{border-right:0;}
+.form-table col.c1{width:8.78mm;}
+.form-table col.c2{width:33.63mm;}
+.form-table col.c3{width:43.61mm;}
+.answer{font-size:8pt;}
+#exam-selected-days{
+  position:absolute;
+  left:49%;top:24.5mm;
+  width:25.04mm;
+  font-size:9.5pt;
+  font-family:"HCR Batang","한컴바탕",serif;
+  font-weight:lighter;
+}
+
+/* 자세히보기 모달 */
+.detail-modal{
+  display:none;
+  position:fixed;
+  z-index:3000;
+  left:0;top:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.5);
+}
+.detail-modal-inner{
+  background:#fff;
+  margin:2% auto;
+  padding:20px;
+  width:80%;
+  max-height:88%;
+  overflow:auto;
+  border-radius:12px;
+  -ms-overflow-style:none;
+  scrollbar-width:none;
+}
+.detail-modal-inner::-webkit-scrollbar{display:none;}
+
+@media print{
+  @page{size:A4;margin:0mm;}
+  html,body{width:210mm;height:297mm;overflow:hidden;background:white;}
+  .exam-modal{display:block!important;position:static;background:none;overflow:hidden;}
+  .exam-toolbar,.no-print{display:none!important;}
+  .exam-modal-inner{margin:0;border-radius:0;}
+  .paper{box-shadow:none;margin:0;position:fixed;top:0;left:0;page-break-after:avoid;page-break-inside:avoid;overflow:hidden;}
+  header,.app-layout{display:none!important;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo-mark">VOCAB</div>
+  <h1>단어장 메이커</h1>
+  <div class="badge-count">선택됨 <span class="num" id="total-count">0</span></div>
+</header>
+<div class="app-layout">
+  <div class="panel" id="day-panel">
+    <div class="panel-header">DAY 선택</div>
+    <div class="panel-body"><div class="day-grid" id="day-grid"></div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-header">
+      <span>단어 목록</span>
+      <span id="word-count-badge" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);"></span>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="search-input" placeholder="단어 검색..." oninput="renderWordList()" />
+    </div>
+    <div id="word-list"><div class="empty-msg">DAY를 선택하세요<div class="hint">← left panel</div></div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-header">최종 단어장</div>
+    <div class="result-actions">
+      <button class="btn btn-primary" onclick="doRandom()">랜덤</button>
+      <button class="btn btn-ghost" onclick="clearAll()">초기화</button>
+      <button class="btn btn-complete" style="margin-left:auto;" onclick="openExamModal()">완료 →</button>
+    </div>
+    <div id="result-list"><div class="empty-msg">단어를 선택하거나<br>랜덤으로 채워보세요</div></div>
+  </div>
+</div>
+
+<!-- ── 시험지 모달 ── -->
+<div id="examModal" class="exam-modal">
+  <div class="exam-modal-inner">
+    <div class="exam-toolbar no-print">
+      <span class="exam-toolbar-title">시험지 미리보기</span>
+      <button class="exam-btn exam-btn-outline" onclick="forStudent()">학생용</button>
+      <button class="exam-btn exam-btn-red" onclick="forTeacher()">선생용</button>
+      <button class="exam-btn exam-btn-red" onclick="doPrint()">프린트</button>
+      <button class="exam-btn exam-btn-close" onclick="closeExamModal()">닫기</button>
+    </div>
+    <div class="paper">
+      <canvas id="pdfCanvas"></canvas>
+      <div id="exam-selected-days">Day</div>
+      <div id="exam-grade" style="position:absolute;left:48.7%;top:32mm;width:25.04mm;font-size:9.5pt;font-family:'HCR Batang','한컴바탕',serif;font-weight:lighter;border:none;padding:0;outline:none;">고등부</div>
+      <div class="tables">
+        <table class="form-table left">
+          <colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup>
+          <tbody id="leftTableBody"></tbody>
+        </table>
+        <table class="form-table">
+          <colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup>
+          <tbody id="rightTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 자세히보기 모달 ── -->
+<div id="detailModal" class="detail-modal">
+  <div class="detail-modal-inner">
+    <h2 style="margin-bottom:12px;">단어 전체 목록</h2>
+    <table border="1" style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead>
+        <tr>
+          <th style="width:6%;">번호</th>
+          <th style="width:10%;">DAY</th>
+          <th style="width:37%;">단어</th>
+          <th style="width:37%;">뜻</th>
+          <th style="width:10%;">유형</th>
+        </tr>
+      </thead>
+      <tbody id="detailTableBody"></tbody>
+    </table>
+    <br>
+    <button class="exam-btn exam-btn-red" style="width:100%;padding:10px;" onclick="closeDetailModal()">닫기</button>
+  </div>
+</div>
+
+<script>
+/* ── 단어장 상태 ── */
+let selectedDays = new Set();
+let serverWords  = [];
+let pinnedIds    = new Set();
+let resultWords  = [];
+
+/* ── DAY GRID ── */
+function renderDayGrid(){
+  const grid=document.getElementById('day-grid');
+  grid.innerHTML='';
+  for(let d=1;d<=50;d++){
+    const btn=document.createElement('button');
+    btn.className='day-btn'+(selectedDays.has(d)?' active':'');
+    btn.textContent=d;
+    btn.onclick=()=>toggleDay(d);
+    grid.appendChild(btn);
+  }
+}
+
+function toggleDay(d){
+  if(selectedDays.has(d)) selectedDays.delete(d);
+  else selectedDays.add(d);
+  renderDayGrid();
+  if(selectedDays.size===0){serverWords=[];renderWordList();return;}
+  fetch('/testForm/submitDays',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({days:[...selectedDays]})
+  })
+  .then(r=>r.json())
+  .then(res=>{serverWords=res.result||[];renderWordList();})
+  .catch(()=>{renderWordList();});
+}
+
+function getFilteredWords(){
+  const q=document.getElementById('search-input').value.trim().toLowerCase();
+  if(!q) return serverWords;
+  return serverWords.filter(w=>w.vocab.toLowerCase().includes(q)||w.meaning.includes(q));
+}
+
+function typeTag(type){
+  if(!type) return '';
+  const cls=type==='표제어'?'표제어':type==='유의어'?'유의어':'';
+  if(!cls) return '';
+  return `<span class="type-tag ${cls}">${esc(type)}</span>`;
+}
+
+function renderWordList(){
+  const list=document.getElementById('word-list');
+  const badge=document.getElementById('word-count-badge');
+  if(serverWords.length===0){
+    list.innerHTML='<div class="empty-msg">DAY를 선택하세요<div class="hint">← left panel</div></div>';
+    badge.textContent='';return;
+  }
+  const filtered=getFilteredWords();
+  badge.textContent=filtered.length+' / '+serverWords.length;
+  if(filtered.length===0){list.innerHTML='<div class="empty-msg">검색 결과 없음</div>';return;}
+  list.innerHTML=filtered.map(w=>{
+    const pinned=pinnedIds.has(w.id);
+    return `<div class="word-item ${pinned?'pinned':''}" onclick="togglePin(${w.id},'${esc(w.vocab)}','${esc(w.meaning)}','${esc(w.type||'')}')">
+      <div class="word-info">
+        <div class="word-eng">
+          <span class="word-day">D${String(w.day).padStart(2,'0')}</span>
+          <span class="word-eng-text">${esc(w.vocab)}</span>
+          ${typeTag(w.type)}
+        </div>
+        <div class="word-kor">${esc(w.meaning)}</div>
+      </div>
+      <button class="pin-btn ${pinned?'active':''}" onclick="event.stopPropagation();togglePin(${w.id},'${esc(w.vocab)}','${esc(w.meaning)}','${esc(w.type||'')}')">${pinned?'★':'☆'}</button>
+    </div>`;
+  }).join('');
+}
+
+function togglePin(id,eng,kor,type){
+  if(pinnedIds.has(id)){pinnedIds.delete(id);resultWords=resultWords.filter(r=>r.id!==id);}
+  else{pinnedIds.add(id);if(!resultWords.find(r=>r.id===id))resultWords.push({id,eng,kor,type});}
+  renderWordList();renderResult();
+}
+
+function doRandom(){
+  if(serverWords.length===0)return;
+  const pinned=resultWords.filter(r=>pinnedIds.has(r.id));
+  const pinnedSet=new Set(pinned.map(r=>r.id));
+  const pool=serverWords.filter(w=>!pinnedSet.has(w.id)).sort(()=>Math.random()-0.5);
+  const slots=Math.min(40-pinned.length,pool.length);
+  resultWords=[...pinned,...pool.slice(0,slots).map(w=>({id:w.id,eng:w.vocab,kor:w.meaning,type:w.type||''}))];
+  renderResult();
+}
+
+function removeResult(id){
+  pinnedIds.delete(id);resultWords=resultWords.filter(r=>r.id!==id);
+  renderWordList();renderResult();
+}
+
+function clearAll(){
+  pinnedIds.clear();resultWords=[];renderWordList();renderResult();
+}
+
+function renderResult(){
+  const list=document.getElementById('result-list');
+  document.getElementById('total-count').textContent=resultWords.length;
+  if(resultWords.length===0){
+    list.innerHTML='<div class="empty-msg">단어를 선택하거나<br>랜덤으로 채워보세요</div>';return;
+  }
+  list.innerHTML=resultWords.map((w,i)=>`
+    <div class="result-item ${pinnedIds.has(w.id)?'pinned-item':''}">
+      <span class="result-num">${String(i+1).padStart(2,'0')}</span>
+      <span class="result-eng">${esc(w.eng)}</span>
+      <span class="result-kor">${esc(w.kor)}</span>
+      <button class="remove-btn" onclick="removeResult(${w.id})" title="제거">×</button>
+    </div>`).join('');
+}
+
+/* ── 시험지 모달 ── */
+let pdfRendered = false;
+
+function openExamModal(){
+  if(resultWords.length===0){alert('단어를 먼저 선택해주세요.');return;}
+  if(resultWords.length>40){alert('단어가 40개를 초과했습니다.\n현재 '+resultWords.length+'개 선택됨');return;}
+  renderVocabTables(resultWords);
+  updateExamDayLabel();
+  document.getElementById('examModal').style.display='block';
+  document.body.style.overflow='hidden';
+  if(!pdfRendered) renderPdf();
+}
+
+function closeExamModal(){
+  document.getElementById('examModal').style.display='none';
+  document.body.style.overflow='';
+}
+
+function updateExamDayLabel(){
+  const days=[...selectedDays].sort((a,b)=>a-b);
+  const el=document.getElementById('exam-selected-days');
+  if(days.length===0){el.textContent='Day';return;}
+  el.textContent=`Day   ${days[0]} ~ ${days[days.length-1]}`;
+}
+
+function renderPdf(){
+  pdfjsLib.getDocument('/testForm.pdf').promise.then(pdf=>{
+    pdf.getPage(1).then(page=>{
+      const viewport=page.getViewport({scale:2});
+      const canvas=document.getElementById('pdfCanvas');
+      canvas.width=viewport.width;
+      canvas.height=viewport.height;
+      page.render({canvasContext:canvas.getContext('2d'),viewport});
+      pdfRendered=true;
+    });
+  }).catch(()=>{console.warn('PDF 로드 실패 — /testForm.pdf 경로 확인');});
+}
+
+function renderVocabTables(list){
+  const leftBody=document.getElementById('leftTableBody');
+  const rightBody=document.getElementById('rightTableBody');
+  leftBody.innerHTML='';rightBody.innerHTML='';
+  list.forEach((w,i)=>{
+    const tr=document.createElement('tr');
+    const td1=document.createElement('td'); td1.textContent='';
+    const td2=document.createElement('td');
+    td2.className='vocab';td2.textContent=w.eng;
+    td2.contentEditable=true;td2.onblur=()=>w.eng=td2.textContent;
+    const td3=document.createElement('td');
+    td3.className='answer';td3.textContent=w.kor;
+    td3.contentEditable=true;td3.onblur=()=>w.kor=td3.textContent;
+    tr.append(td1,td2,td3);
+    if(i<20) leftBody.appendChild(tr);
+    else rightBody.appendChild(tr);
+  });
+}
+
+function forStudent(){
+  document.querySelectorAll('.answer').forEach(el=>el.style.visibility='hidden');
+}
+function forTeacher(){
+  document.querySelectorAll('.answer').forEach(el=>el.style.visibility='visible');
+}
+function doPrint(){window.print();}
+
+/* ── 자세히보기 모달 ── */
+function openDetailModal(){
+  renderDetailTable(resultWords);
+  document.getElementById('detailModal').style.display='block';
+}
+function closeDetailModal(){
+  document.getElementById('detailModal').style.display='none';
+}
+
+function renderDetailTable(list){
+  const tbody=document.getElementById('detailTableBody');
+  tbody.innerHTML='';
+  list.forEach((w,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${i+1}</td>
+      <td contenteditable="true">${esc(w.day||'')}</td>
+      <td contenteditable="true" class="ed-vocab">${esc(w.eng)}</td>
+      <td contenteditable="true" class="ed-meaning">${esc(w.kor)}</td>
+      <td contenteditable="true">${esc(w.type||'')}</td>`;
+    tr.querySelector('.ed-vocab').oninput=e=>{w.eng=e.target.innerText;renderVocabTables(resultWords);};
+    tr.querySelector('.ed-meaning').oninput=e=>{w.kor=e.target.innerText;renderVocabTables(resultWords);};
+    tbody.appendChild(tr);
+  });
+}
+
+/* ── 붙여넣기 스타일 제거 ── */
+document.addEventListener('paste',function(e){
+  if(!e.target.isContentEditable)return;
+  e.preventDefault();
+  let text=(e.clipboardData||window.clipboardData).getData('text/plain').replace(/\r\n/g,'\n');
+  const sel=window.getSelection();
+  if(!sel.rangeCount)return;
+  sel.deleteFromDocument();
+  sel.getRangeAt(0).insertNode(document.createTextNode(text));
+  sel.collapseToEnd();
+});
+
+/* ESC 닫기 */
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('detailModal').style.display==='block') closeDetailModal();
+    else closeExamModal();
+  }
+});
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+renderDayGrid();
+</script>
+</body>
+</html>
