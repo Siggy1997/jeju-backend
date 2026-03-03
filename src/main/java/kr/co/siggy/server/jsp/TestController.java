@@ -39,4 +39,16 @@ public class TestController extends BaseController{
         return res;
     }
 
+    @PostMapping("/testForm/submitDays2")
+    @ResponseBody
+    public Map<String, Object> submitDays2Ajax(@RequestBody Map<String, List<String>> req) {
+    	Map<String, Object> res = new HashMap<>();
+    	logger.info("선택된 DAY: " + req);
+    	List<Map<String, Object>> vocabList = testService.getVocabListByDays2(req);
+    	logger.info("### RESULT {}", vocabList);
+    	res.put("result", vocabList);
+    	// 필요한 로직 처리 후 JSON 응답
+    	return res;
+    }
+
 }

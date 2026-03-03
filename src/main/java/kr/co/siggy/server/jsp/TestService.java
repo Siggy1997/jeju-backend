@@ -20,4 +20,10 @@ public class TestService extends BaseController{
 		return vocabList;
 	}
 
+
+	public List<Map<String, Object>> getVocabListByDays2(Map<String, List<String>> req) {
+		List<Map<String, Object>> vocabList = testDao.getVocabListByDays2(req);
+		return vocabList;
+	}
+
 }

@@ -380,7 +380,7 @@
 		function requestDays() {
 			if (selected.length === 0) return alert('선택된 DAY가 없습니다!');
 
-			fetch('/testForm/submitDays', {
+			fetch('/testForm/submitDays2', {
 				method: 'POST',
 				headers: {'Content-Type': 'application/json'},
 				body: JSON.stringify({days: selected})

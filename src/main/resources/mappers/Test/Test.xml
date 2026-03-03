@@ -1,31 +1,36 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="Test">
 
-    <select id="getVocabListByDays" resultType="kr.co.siggy.server.common.CamelCaseMap">
- 		SELECT
- 			id
- 			, DAY
- 			, VOCAB
- 			, MEANING
- 			, TYPE
-    	FROM TEST_FORM
-    	<where>
-        	<choose>
-	            <when test="days != null and days.size() > 0">
-	                DAY IN
-	                <foreach item="day" collection="days" open="(" separator="," close=")">
-	                    #{day}
-	                </foreach>
-	                AND TYPE IN ('유의어','표제어')
-	            </when>
-	            <otherwise>
-	                1 = 2
-	            </otherwise>
-        	</choose>
-    	</where>
+	<select id="getVocabListByDays"
+		resultType="kr.co.siggy.server.common.CamelCaseMap"> SELECT id , DAY ,
+		VOCAB , MEANING , TYPE FROM TEST_FORM <where>
+			<choose>
+				<when test="days != null and days.size() > 0"> DAY IN <foreach
+						item="day" collection="days" open="(" separator=","
+						close=")">
+						#{day}
+					</foreach>
+		AND TYPE IN ('유의어','표제어') </when>
+				<otherwise>
+					1 = 2
+				</otherwise>
+			</choose>
+		</where>
 	</select>
+
+	<select id="getVocabListByDays2"
+		resultType="kr.co.siggy.server.common.CamelCaseMap"> 
+		SELECT DAY , VOCAB
+		, MEANING , TYPE FROM TEST_FORM <where>
+			<choose>
+				<when test="days != null and days.size() > 0"> DAY IN <foreach
+						item="day" collection="days" open="(" separator=","
+						close=")"> #{day} </foreach> AND TYPE != '파생어' </when>
+				<otherwise> 1 = 2 </otherwise>
+			</choose>
+		</where>
+		ORDER BY RAND() LIMIT 40 </select>
 
 </mapper>

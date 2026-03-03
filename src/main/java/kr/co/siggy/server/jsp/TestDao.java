@@ -17,4 +17,9 @@ public class TestDao extends BaseDao{
 		return sqlSession.selectList(nameSpace + ".getVocabListByDays", req);
 	}
 
+
+	public List<Map<String, Object>> getVocabListByDays2(Map<String, List<String>> req) {
+		return sqlSession.selectList(nameSpace + ".getVocabListByDays2", req);
+	}
+
 }
