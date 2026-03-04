@@ -21,7 +21,7 @@ public class TestService extends BaseController{
 	}
 
 
-	public List<Map<String, Object>> getVocabListByDays2(Map<String, List<String>> req) {
+	public List<Map<String, Object>> getVocabListByDays2(Map<String, Object> req) {
 		List<Map<String, Object>> vocabList = testDao.getVocabListByDays2(req);
 		return vocabList;
 	}

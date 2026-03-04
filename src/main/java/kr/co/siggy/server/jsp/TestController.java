@@ -41,7 +41,7 @@ public class TestController extends BaseController{
 
     @PostMapping("/testForm/submitDays2")
     @ResponseBody
-    public Map<String, Object> submitDays2Ajax(@RequestBody Map<String, List<String>> req) {
+    public Map<String, Object> submitDays2Ajax(@RequestBody Map<String, Object> req) {
     	Map<String, Object> res = new HashMap<>();
     	logger.info("선택된 DAY: " + req);
     	List<Map<String, Object>> vocabList = testService.getVocabListByDays2(req);
